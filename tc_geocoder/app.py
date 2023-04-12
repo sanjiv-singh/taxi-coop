@@ -1,16 +1,18 @@
 import json
-
+import os
 import requests
 
-geocoder_url = 'https://maps.googleapis.com/maps/api/geocode'
-output_format = 'json'
+BASE_URL = 'https://maps.googleapis.com/maps/api/geocode'
+OUTPUT_FORMAT = 'json'
+SOUTHWEST = os.environ['SOUTHWEST']
+NORTHEAST = os.environ['NORTHEAST']
 
 
 def handle_get(event):
     key = event["queryStringParameters"]["key"]
     lat = event["queryStringParameters"]["lat"]
     lng = event["queryStringParameters"]["lng"]
-    url = f'{geocoder_url}/{output_format}?latlng={lat},{lng}&key={key}'
+    url = f'{BASE_URL}/{OUTPUT_FORMAT}?latlng={lat},{lng}&key={key}'
     response = requests.get(url).json()
     address = response["results"][0]["formatted_address"]
 
@@ -24,7 +26,7 @@ def handle_get(event):
 def handle_post(event):
     key = event["queryStringParameters"]["key"]
     address = json.loads(event["body"])["address"]
-    url = f'{geocoder_url}/{output_format}?address={address}&key={key}'
+    url = f'{BASE_URL}/{OUTPUT_FORMAT}?address={address}&key={key}'
     response = requests.get(url).json()
     location = response["results"][0]["geometry"]["location"]
 

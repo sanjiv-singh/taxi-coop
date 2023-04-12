@@ -1,16 +1,18 @@
 import json
-
+import os
 import requests
 
-directions_url = 'https://maps.googleapis.com/maps/api/directions' #/json?origin=Toronto&destination=Montreal&avoid=highways&mode=bicycling&key=YOUR_API_KEY"
-output_format = 'json'
+BASE_URL = 'https://maps.googleapis.com/maps/api/directions'
+OUTPUT_FORMAT = 'json'
+SOUTHWEST = os.environ['SOUTHWEST']
+NORTHEAST = os.environ['NORTHEAST']
 
 
 def handle_get(event):
     key = event["queryStringParameters"]["key"]
     origin = event["queryStringParameters"]["origin"]
     destination = event["queryStringParameters"]["destination"]
-    url = f'{directions_url}/{output_format}?origin={origin}&destination={destination}&mode=driving&key={key}'
+    url = f'{BASE_URL}/{OUTPUT_FORMAT}?origin={origin}&destination={destination}&mode=driving&key={key}'
     response = requests.get(url).json()
     steps = response["routes"][0]["legs"][0]["steps"]
 
@@ -26,7 +28,7 @@ def handle_post(event):
     body = json.loads(event["body"])
     origin = body["origin"]
     destination = body["destination"]
-    url = f'{directions_url}/{output_format}?origin={origin}&destination={destination}&mode=driving&key={key}'
+    url = f'{BASE_URL}/{OUTPUT_FORMAT}?origin={origin}&destination={destination}&mode=driving&key={key}'
     response = requests.get(url).json()
     steps = response["routes"][0]["legs"][0]["steps"]
 

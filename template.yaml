@@ -5,11 +5,22 @@ Description: >
 
   Sample SAM Template for taxi-coop
 
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Parameters:
+  SouthWest:
+    Type: String
+    Default: 20.8,80.8
+  NorthEast:
+    Type: String
+    Default: 21.0,81.0
+
 Globals:
   Function:
     Timeout: 3
     MemorySize: 128
+    Environment:
+      Variables:
+        SOUTHWEST: !Ref SouthWest
+        NORTHEAST: !Ref NorthEast
 
 Resources:
   TCGeocoderFunction:
