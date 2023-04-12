@@ -2,12 +2,12 @@ import json
 
 import requests
 
-key='***REMOVED***'
 geocoder_url = 'https://maps.googleapis.com/maps/api/geocode'
 output_format = 'json'
 
 
 def handle_get(event):
+    key = event["queryStringParameters"]["key"]
     lat = event["queryStringParameters"]["lat"]
     lng = event["queryStringParameters"]["lng"]
     url = f'{geocoder_url}/{output_format}?latlng={lat},{lng}&key={key}'
@@ -22,6 +22,7 @@ def handle_get(event):
     }
 
 def handle_post(event):
+    key = event["queryStringParameters"]["key"]
     address = json.loads(event["body"])["address"]
     url = f'{geocoder_url}/{output_format}?address={address}&key={key}'
     response = requests.get(url).json()

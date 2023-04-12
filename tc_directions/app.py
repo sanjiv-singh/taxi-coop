@@ -2,18 +2,17 @@ import json
 
 import requests
 
-key='***REMOVED***'
 directions_url = 'https://maps.googleapis.com/maps/api/directions' #/json?origin=Toronto&destination=Montreal&avoid=highways&mode=bicycling&key=YOUR_API_KEY"
 output_format = 'json'
 
 
 def handle_get(event):
+    key = event["queryStringParameters"]["key"]
     origin = event["queryStringParameters"]["origin"]
     destination = event["queryStringParameters"]["destination"]
     url = f'{directions_url}/{output_format}?origin={origin}&destination={destination}&mode=driving&key={key}'
     response = requests.get(url).json()
     steps = response["routes"][0]["legs"][0]["steps"]
-    print(steps)
 
     return {
         "statusCode": 200,
@@ -23,15 +22,13 @@ def handle_get(event):
     }
 
 def handle_post(event):
+    key = event["queryStringParameters"]["key"]
     body = json.loads(event["body"])
     origin = body["origin"]
     destination = body["destination"]
     url = f'{directions_url}/{output_format}?origin={origin}&destination={destination}&mode=driving&key={key}'
     response = requests.get(url).json()
-    print(response)
     steps = response["routes"][0]["legs"][0]["steps"]
-    print(steps)
-    #location = response["results"][0]["geometry"]["location"]
 
     return {
         "statusCode": 200,
