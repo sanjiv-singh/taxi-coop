@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  taxi-coop
+
+  Sample SAM Template for taxi-coop
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+    MemorySize: 128
+
+Resources:
+  TCGeocoderFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: tc_geocoder/
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Events:
+        TCGeocoder:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /geocoder
+            Method: any
+
+  TCDirectionsFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: tc_directions/
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Events:
+        TCDirections:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /directions
+            Method: any
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  TCGeocoderApi:
+    Description: "API Gateway endpoint URL for Prod stage for Geocoder function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/geocoder/"
+  TCGeocoderFunction:
+    Description: "Geocoder Lambda Function ARN"
+    Value: !GetAtt TCGeocoderFunction.Arn
+  TCGeocoderFunctionIamRole:
+    Description: "Implicit IAM Role created for Geocoder function"
+    Value: !GetAtt TCGeocoderFunctionRole.Arn
+
+  TCDirectionsApi:
+    Description: "API Gateway endpoint URL for Prod stage for Directions function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/directions/"
+  TCDirectionsFunction:
+    Description: "Directions Lambda Function ARN"
+    Value: !GetAtt TCDirectionsFunction.Arn
+  TCDirectionsFunctionIamRole:
+    Description: "Implicit IAM Role created for Directions function"
+    Value: !GetAtt TCDirectionsFunctionRole.Arn
