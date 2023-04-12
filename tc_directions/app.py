@@ -12,13 +12,13 @@ def handle_get(event):
     destination = event["queryStringParameters"]["destination"]
     url = f'{directions_url}/{output_format}?origin={origin}&destination={destination}&mode=driving&key={key}'
     response = requests.get(url).json()
-    address = response["directions"]["routes"][0]["legs"][0]["steps"]
-    print(address)
+    steps = response["routes"][0]["legs"][0]["steps"]
+    print(steps)
 
     return {
         "statusCode": 200,
         "body": json.dumps({
-            "directions": response,
+            "directions": steps,
         }),
     }
 
