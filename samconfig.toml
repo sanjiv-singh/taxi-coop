@@ -18,8 +18,9 @@ capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
 s3_prefix = "taxi-coop"
-region = "ap-south-1"
+region = "us-east-1"
 image_repositories = []
+parameter_overrides = "SouthWest=\"20.8,80.8\" NorthEast=\"21.0,81.0\""
 
 [default.package.parameters]
 resolve_s3 = true
