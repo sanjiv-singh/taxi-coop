@@ -1,20 +1,16 @@
 {
     "devices": [
         {
-            "device_id": "TAXI_1",
-            "thing_type": "TAXI",
-            "thing_type_desc": "Taxi device",
-            "thing_group": "Taxi_Coop",
-            "thing_group_desc": "Group of all taxi devices"
+            "device_id": "TAXI_1"
         },
         {
-            "device_id": "TAXI_2",
-            "thing_type": "TAXI",
-            "thing_type_desc": "Taxi device",
-            "thing_group": "Taxi_Coop",
-            "thing_group_desc": "Group of all taxi devices"
+            "device_id": "TAXI_2"
         }
     ],
+    "thing_type": "TAXI",
+    "thing_type_desc": "Taxi device",
+    "thing_group": "Taxi_Coop",
+    "thing_group_desc": "Group of all taxi devices",
     "policy_name": "Taxi_policy",
     "role": "Taxi_role",
     "rule": "Taxi_rule",

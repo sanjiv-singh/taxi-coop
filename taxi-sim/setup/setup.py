@@ -72,10 +72,13 @@ def load_config(file):
 
 
 def create_policy(client, policy):
-    resp = client.create_policy(
-        policyName=policy,
-        policyDocument=json.dumps(iot_policy_doc)
-    )
+    try:
+        resp = client.create_policy(
+            policyName=policy,
+            policyDocument=json.dumps(iot_policy_doc)
+        )
+    except Exception:
+        print(f'Policy {policy} already exists. Skipping.')
 
 
 def create_certificate(client, thing_name, cert_path, policy):
@@ -104,25 +107,15 @@ def create_certificate(client, thing_name, cert_path, policy):
 
 
 def create_thing(client, device, cert_path, policy):
-    props = {'thingTypeDescription': device.get("thing_type_desc")}
-    type_resp = client.create_thing_type(
-        thingTypeName=device.get("thing_type"),
-        thingTypeProperties=props
-    )
-    props = {'thingGroupDescription': device.get("thing_group_desc")}
-    group_resp = client.create_thing_group(
-        thingGroupName=device.get("thing_group"),
-        thingGroupProperties=props
-    )
     resp = client.create_thing(
-        thingName=device.get("device_id"),
-        thingTypeName=device.get("thing_type")
+        thingName=device,
+        thingTypeName=config.get("thing_type")
     )
     resp = client.add_thing_to_thing_group(
-        thingName=device.get("device_id"),
-        thingGroupName=device.get("thing_group")
+        thingName=device,
+        thingGroupName=config.get("thing_group")
     )
-    create_certificate(client, device.get("device_id"), cert_path, policy)
+    create_certificate(client, device, cert_path, policy)
 
 
 def create_role(client, iam_role_name):
@@ -142,52 +135,39 @@ def create_role(client, iam_role_name):
     return role.get('Arn')
 
 
-# def delete_rule(client, rule_name):
-#     resp = client.delete_topic_rule(ruleName=rule_name)
-
-
-# def create_rule(client, role_arn, rule_name):
-#     response = client.create_topic_rule(
-#         ruleName=rule_name,
-#         topicRulePayload={
-#             'sql': 'SELECT * FROM "iot/bsm"',
-#             'description': 'Rule to ingest device data to DynamoDB',
-#             'actions': [
-#                 {
-#                     'dynamoDBv2': {
-#                         'roleArn': role_arn,
-#                         'putItem': {
-#                             'tableName': 'bsm_data'
-#                         }
-#                     }
-#                 }
-#             ]
-#         }
-#     )
-
 
 if __name__ == '__main__':
     config = load_config("config.json")
 
     iot_client = boto3.client('iot')
-    # dynamodb = boto3.resource('dynamodb')
     iam_client = boto3.client('iam')
 
     cert_path = config.get("cert_path")
     policy = config.get("policy_name")
     create_policy(iot_client, policy)
 
-    print("Creating devices ", ' '.join(
-        [d.get("device_id") for d in config.get("devices")]))
-    for device in config.get("devices"):
-        create_thing(iot_client, device, cert_path, policy)
+    props = {'thingTypeDescription': config.get("thing_type_desc")}
+    try:
+        type_resp = iot_client.create_thing_type(
+            thingTypeName=config.get("thing_type"),
+            thingTypeProperties=props
+        )
+    except Exception:
+        print(f'ThingType {config.get("thing_type")} already exists. Skipping.')
 
-    # print("Creating table ", config.get("raw_table"))
-    # create_table(dynamodb, config.get("raw_table"))
-    # print("Creating table ", config.get("agg_table"))
-    # create_table(dynamodb, config.get("agg_table"))
-    # print("Creating table ", config.get("alerts_table"))
-    # create_table(dynamodb, config.get("alerts_table"))
+    props = {'thingGroupDescription': config.get("thing_group_desc")}
+    try:
+        group_resp = iot_client.create_thing_group(
+            thingGroupName=config.get("thing_group"),
+            thingGroupProperties=props
+        )
+    except Exception:
+        print(f'ThingGroup {config.get("thing_group")} already exists. Skipping.')
+
+
+    print("Creating IoT devices for Taxies ")
+    for i in range(10):
+        create_thing(iot_client, f'TAXI_{i}', cert_path, policy)
 
     # delete_role(iam_client, config.get("role"))
     print("Creating role ", config.get("role"))

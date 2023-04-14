@@ -58,7 +58,7 @@ if __name__ == '__main__':
         delete_things()
 
         # Delete Thing Group
-        resp = iot_client.delete_thing_group(thingGroupName=config.get("devices")[0]["thing_group"])
+        resp = iot_client.delete_thing_group(thingGroupName=config.get("thing_group"))
         # Delete IoT Policy
         resp = iot_client.delete_policy(policyName=config.get("policy_name"))
     
