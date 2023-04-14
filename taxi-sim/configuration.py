@@ -93,4 +93,4 @@ def configure():
     myAWSIoTMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
     myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 
-    return (myAWSIoTMQTTClient, deviceId, topic, mode)
+    return myAWSIoTMQTTClient
