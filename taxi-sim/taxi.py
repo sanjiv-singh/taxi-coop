@@ -9,6 +9,8 @@ import time
 
 TOPIC_ROOT = 'iot/TAXI'
 
+PUBLISH_INTERVAL = 5
+
 class TaxiClass(Enum):
     DELUXE = 0
     LUXARY = 1
@@ -66,10 +68,8 @@ async def main():
         taxi = Taxi()
         taxi.connect()
         taxi.subscribe()
-        tasks.append(asyncio.create_task(taxi.main_loop(1)))
+        tasks.append(asyncio.create_task(taxi.main_loop(PUBLISH_INTERVAL)))
         tasks.append(asyncio.create_task(taxi._drive()))
-    # t1 = asyncio.create_task(taxi.main_loop(1))
-    # t2 = asyncio.create_task(taxi._drive())
     await asyncio.gather(*tasks)
 
 if __name__ == '__main__':
