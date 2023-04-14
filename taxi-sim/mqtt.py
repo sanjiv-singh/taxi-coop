@@ -9,10 +9,7 @@ import sched
 from configuration import configure
 
 
-PublishFreqHeartRate = 1
-PublishFreqTemperature = 15
-PublishFreqOxygen = 10
-
+PublishRate = 1
 
 # Custom MQTT message callback
 def custom_callback(client, userdata, message):
@@ -27,38 +24,22 @@ def custom_callback(client, userdata, message):
 class MQTTClient:
 
     def __init__(self):
-        self._client, self._deviceId, self._topic, self._mode = configure()
+        self._client, self._taxi_id, self._topic, self._mode = configure()
+        self._lat = 13.0
+        self._lng = 75.8
 
 
     def publish_data(self, loopCount):
         message = {}
-        message['deviceid'] = self._deviceId  # 'TAXI_1'
+        message['taxi_id'] = self._taxi_id  # 'TAXI_1'
+        self._lat += random.uniform(-0.5, 0.5)
+        self._lng += random.uniform(-0.5, 0.5)
         try:
-            if loopCount % PublishFreqTemperature == 0:
-                value = float(random.normalvariate(99, 1.5))
-                value = round(value, 1)
+            if loopCount % PublishRate == 0:
+                location = {'lat': self._lat, 'lng': self._lng}
                 timestamp = str(datetime.datetime.now())
                 message['timestamp'] = timestamp
-                message['datatype'] = 'Temperature'
-                message['value'] = value
-                messageJson = json.dumps(message)
-                self._client.publish(self._topic, messageJson, 1)
-
-            if loopCount % PublishFreqOxygen == 0:
-                value = int(random.normalvariate(90, 3.0))
-                timestamp = str(datetime.datetime.now())
-                message['timestamp'] = timestamp
-                message['datatype'] = 'SPO2'
-                message['value'] = value
-                messageJson = json.dumps(message)
-                self._client.publish(self._topic, messageJson, 1)
-
-            if loopCount % PublishFreqHeartRate == 0:
-                value = int(random.normalvariate(85, 12))
-                timestamp = str(datetime.datetime.now())
-                message['timestamp'] = timestamp
-                message['datatype'] = 'HeartRate'
-                message['value'] = value
+                message['location'] = location
                 messageJson = json.dumps(message)
                 self._client.publish(self._topic, messageJson, 1)
 
