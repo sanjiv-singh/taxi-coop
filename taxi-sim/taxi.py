@@ -61,12 +61,16 @@ class Taxi(MQTTClient):
     
     
 async def main():
-    taxi = Taxi()
-    taxi.connect()
-    taxi.subscribe()
-    t1 = asyncio.create_task(taxi.main_loop(1))
-    t2 = asyncio.create_task(taxi._drive())
-    await asyncio.gather(t1, t2)
+    tasks = []
+    for _ in range(10):
+        taxi = Taxi()
+        taxi.connect()
+        taxi.subscribe()
+        tasks.append(asyncio.create_task(taxi.main_loop(1)))
+        tasks.append(asyncio.create_task(taxi._drive()))
+    # t1 = asyncio.create_task(taxi.main_loop(1))
+    # t2 = asyncio.create_task(taxi._drive())
+    await asyncio.gather(*tasks)
 
 if __name__ == '__main__':
 
