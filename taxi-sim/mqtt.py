@@ -1,10 +1,11 @@
+from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 from AWSIoTPythonSDK.exception.AWSIoTExceptions import publishTimeoutException
 from AWSIoTPythonSDK.core.protocol.internal.defaults import DEFAULT_OPERATION_TIMEOUT_SEC
 import datetime
 import json
 import asyncio
 
-from configuration import configure
+from configuration import ConfigurationManager
 
 
 # Custom MQTT message callback
@@ -20,7 +21,9 @@ def custom_callback(client, userdata, message):
 class MQTTClient:
 
     def __init__(self):
-        self._client = configure()
+
+        config_manager = ConfigurationManager()
+        self._client = config_manager.create_client()
 
 
     async def publish_data(self):

@@ -4,93 +4,81 @@ import logging
 
 AllowedActions = ['both', 'publish', 'subscribe']
 
+class ConfigurationManager:
 
-def parse_arguments():
+    def __init__(self) -> None:
+        self.parse_arguments()
+        self.configure()
 
-    # Read in command-line parameters
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-e", "--endpoint", action="store", required=True,
-                        dest="host", help="Your AWS IoT custom endpoint")
-    parser.add_argument("-r", "--rootCA", action="store",
-                        required=True, dest="rootCAPath", help="Root CA file path")
-    parser.add_argument("-c", "--cert", action="store",
-                        dest="certificatePath", help="Certificate file path")
-    parser.add_argument("-k", "--key", action="store",
-                        dest="privateKeyPath", help="Private key file path")
-    parser.add_argument("-p", "--port", action="store",
-                        dest="port", type=int, help="Port number override")
-    parser.add_argument("-w", "--websocket", action="store_true", dest="useWebsocket", default=False,
-                        help="Use MQTT over WebSocket")
-    parser.add_argument("-id", "--clientId", action="store", dest="clientId", default="basicPubSub",
-                        help="Targeted client id")
-    parser.add_argument("-d", "--deviceId", action="store", dest="deviceId", default="BSM",
-                        help="Device ID")
-    parser.add_argument("-t", "--topic", action="store", dest="topic",
-                        default="sdk/test/Python", help="Targeted topic")
-    parser.add_argument("-m", "--mode", action="store", dest="mode", default="both",
-                        help="Operation modes: %s" % str(AllowedActions))
-    parser.add_argument("-M", "--message", action="store", dest="message", default="Hello World!",
-                        help="Message to publish")
+    def create_client(self):
+        # Init AWSIoTMQTTClient
+        myAWSIoTMQTTClient = None
+        if self.useWebsocket:
+            myAWSIoTMQTTClient = AWSIoTMQTTClient(self.clientId, useWebsocket=True)
+            myAWSIoTMQTTClient.configureEndpoint(self.host, self.port)
+            myAWSIoTMQTTClient.configureCredentials(self.rootCAPath)
+        else:
+            myAWSIoTMQTTClient = AWSIoTMQTTClient(self.clientId)
+            myAWSIoTMQTTClient.configureEndpoint(self.host, self.port)
+            myAWSIoTMQTTClient.configureCredentials(self.rootCAPath, self.privateKeyPath, self.certificatePath)
 
-    args = parser.parse_args()
-    
-    if args.mode not in AllowedActions:
-        parser.error("Unknown --mode option %s. Must be one of %s" % (args.mode, str(AllowedActions)))
-        exit(2)
+        # AWSIoTMQTTClient connection configuration
+        myAWSIoTMQTTClient.configureAutoReconnectBackoffTime(1, 32, 20)
+        myAWSIoTMQTTClient.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
+        myAWSIoTMQTTClient.configureDrainingFrequency(2)  # Draining: 2 Hz
+        myAWSIoTMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
+        myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 
-    if args.useWebsocket and args.certificatePath and args.privateKeyPath:
-        parser.error("X.509 cert authentication and WebSocket are mutual exclusive. Please pick one.")
-        exit(2)
+        return myAWSIoTMQTTClient
 
-    if not args.useWebsocket and (not args.certificatePath or not args.privateKeyPath):
-        parser.error("Missing credentials for authentication.")
-        exit(2)
+    def parse_arguments(self):
 
-    return args
+        # Read in command-line parameters
+        parser = argparse.ArgumentParser()
+        parser.add_argument("-e", "--endpoint", action="store", required=True,
+                            dest="host", help="Your AWS IoT custom endpoint")
+        parser.add_argument("-r", "--rootCA", action="store",
+                            required=True, dest="rootCAPath", help="Root CA file path")
+        parser.add_argument("-c", "--cert", action="store",
+                            dest="certificatePath", help="Certificate file path")
+        parser.add_argument("-k", "--key", action="store",
+                            dest="privateKeyPath", help="Private key file path")
+        parser.add_argument("-p", "--port", action="store",
+                            dest="port", type=int, help="Port number override")
+        parser.add_argument("-w", "--websocket", action="store_true", dest="useWebsocket", default=False,
+                            help="Use MQTT over WebSocket")
+        parser.add_argument("-id", "--clientId", action="store", dest="clientId", default="taxiPubSub",
+                            help="Targeted client id")
 
-def configure():
-    args = parse_arguments()
-    host = args.host
-    rootCAPath = args.rootCAPath
-    certificatePath = args.certificatePath
-    privateKeyPath = args.privateKeyPath
-    port = args.port
-    useWebsocket = args.useWebsocket
-    clientId = args.clientId
-    deviceId = args.deviceId
-    topic = args.topic
-    mode = args.mode
+        self.args = parser.parse_args()
+        
+        if self.args.useWebsocket and self.args.certificatePath and self.args.privateKeyPath:
+            parser.error("X.509 cert authentication and WebSocket are mutual exclusive. Please pick one.")
+            exit(2)
 
-    # Port defaults
-    if args.useWebsocket and not args.port:  # When no port override for WebSocket, default to 443
-        port = 443
-    if not args.useWebsocket and not args.port:  # When no port override for non-WebSocket, default to 8883
-        port = 8883
+        if not self.args.useWebsocket and (not self.args.certificatePath or not self.args.privateKeyPath):
+            parser.error("Missing credentials for authentication.")
+            exit(2)
 
-    # Configure logging
-    logger = logging.getLogger("AWSIoTPythonSDK.core")
-    logger.setLevel(logging.ERROR)
-    streamHandler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    streamHandler.setFormatter(formatter)
-    logger.addHandler(streamHandler)
+    def configure(self):
+        self.host = self.args.host
+        self.rootCAPath = self.args.rootCAPath
+        self.certificatePath = self.args.certificatePath
+        self.privateKeyPath = self.args.privateKeyPath
+        self.port = self.args.port
+        self.useWebsocket = self.args.useWebsocket
+        self.clientId = self.args.clientId
 
-    # Init AWSIoTMQTTClient
-    myAWSIoTMQTTClient = None
-    if useWebsocket:
-        myAWSIoTMQTTClient = AWSIoTMQTTClient(clientId, useWebsocket=True)
-        myAWSIoTMQTTClient.configureEndpoint(host, port)
-        myAWSIoTMQTTClient.configureCredentials(rootCAPath)
-    else:
-        myAWSIoTMQTTClient = AWSIoTMQTTClient(clientId)
-        myAWSIoTMQTTClient.configureEndpoint(host, port)
-        myAWSIoTMQTTClient.configureCredentials(rootCAPath, privateKeyPath, certificatePath)
+        # Port defaults
+        if self.useWebsocket and not self.port:  # When no port override for WebSocket, default to 443
+            self.port = 443
+        if not self.useWebsocket and not self.port:  # When no port override for non-WebSocket, default to 8883
+            self.port = 8883
 
-    # AWSIoTMQTTClient connection configuration
-    myAWSIoTMQTTClient.configureAutoReconnectBackoffTime(1, 32, 20)
-    myAWSIoTMQTTClient.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
-    myAWSIoTMQTTClient.configureDrainingFrequency(2)  # Draining: 2 Hz
-    myAWSIoTMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
-    myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
-
-    return myAWSIoTMQTTClient
+        # Configure logging
+        logger = logging.getLogger("AWSIoTPythonSDK.core")
+        logger.setLevel(logging.ERROR)
+        streamHandler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        streamHandler.setFormatter(formatter)
+        logger.addHandler(streamHandler)
