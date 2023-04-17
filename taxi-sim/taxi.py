@@ -1,5 +1,6 @@
 import asyncio
 from mqtt import MQTTClient
+from configuration import ConfigurationManager
 
 from enum import Enum
 from uuid import uuid4
@@ -7,9 +8,6 @@ import random
 import asyncio
 import time
 
-TOPIC_ROOT = 'iot/TAXI'
-
-PUBLISH_INTERVAL = 5
 
 class TaxiClass(Enum):
     DELUXE = 0
@@ -29,9 +27,10 @@ def create_random_location(south_west, north_east):
 
 class Taxi(MQTTClient):
 
-    def __init__(self):
-        self._taxi_id = uuid4()
-        self._topic = TOPIC_ROOT
+    def __init__(self, config: ConfigurationManager):
+        self._config = config
+        self._taxi_id = str(uuid4())
+        self._topic = self._config.topicRoot
         self._taxi_class = TaxiClass.DELUXE
         self._status = TaxiStatus.AVL
         self._lat, self._lng = create_random_location((12.8, 77.5), (13.5, 78.2))
@@ -61,17 +60,3 @@ class Taxi(MQTTClient):
                 break
 
     
-    
-async def main():
-    tasks = []
-    for _ in range(10):
-        taxi = Taxi()
-        taxi.connect()
-        taxi.subscribe()
-        tasks.append(asyncio.create_task(taxi.main_loop(PUBLISH_INTERVAL)))
-        tasks.append(asyncio.create_task(taxi._drive()))
-    await asyncio.gather(*tasks)
-
-if __name__ == '__main__':
-
-    asyncio.run(main())
