@@ -42,14 +42,11 @@ role_arn=$(aws iam get-role --role-name Taxi_role --query Role.Arn --output text
 echo $role_arn > role_arn.txt
 
 echo "Creating IoT thing type....."
-type_deprecated=$(aws iot describe-thing-type \
-	--thing-type-name TAXI \
-	--query thingTypeMetadata.deprecated \
-	--output text)
+type_deprecated=$(aws iot describe-thing-type --thing-type-name TAXI --query thingTypeMetadata.deprecated --output text)
 
-if [ $type_deprecated = "false" ]; then
+if [ $type_deprecated = "False" ]; then
 	echo "Thing type TAXI already exists"
-elif [ $type_deprecated = "true" ]; then
+elif [ $type_deprecated = "True" ]; then
 	aws iot deprecate-thing-type \
 	--thing-type-name TAXI \
 	--undo-deprecate

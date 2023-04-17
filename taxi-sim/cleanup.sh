@@ -7,6 +7,8 @@ iot_logging_policy_arn='arn:aws:iam::aws:policy/service-role/AWSIoTLogging'
 iot_rule_actions_policy_arn='arn:aws:iam::aws:policy/service-role/AWSIoTRuleActions'
 docdb_policy_arn='arn:aws:iam::aws:policy/AmazonDocDBFullAccess'
 
+policy_name='Taxi_policy'
+
 echo "Detaching policies from role..."
 aws iam detach-role-policy \
 	--role-name Taxi_role \
@@ -32,31 +34,37 @@ echo "Deleting IoT thing group..."
 aws iot delete-thing-group \
 	--thing-group-name Taxi_group
 
-echo "Deleting IoT certificates..."
-for cert_id in $(aws iot list-thing-registrations \
-	--thing-group-name Taxi_group \
-	--query 'registrations[].certificateId' \
-	--output text); do
-	aws iot update-certificate \
-		--certificate-id $cert_id \
-		--new-status INACTIVE
-	aws iot delete-certificate \
-		--certificate-id $cert_id
-done
-
 echo "Deleting IoT things..."
-for thing_name in $(aws iot list-thing-registrations \
-	--thing-group-name Taxi_group \
-	--query 'registrations[].thingName' \
-	--output text); do
+for thing_name in $(aws iot list-things --query things[].thingName --output text); do
+
+	echo "$thing_name"
+
+	for principal in $(aws iot list-thing-principals --thing-name $thing_name  --query principals --output text); do
+		#readarray -d : -t arr1 <<< "$principal"
+		#readarray -d : -t arr2 <<< ${arr1[5]}
+		#cert_id=${arr2[1]}
+		aws iot detach-thing-principal \
+			--thing-name $thing_name \
+			--principal $principal
+		aws iot detach-policy \
+			--policy-name $policy_name \
+			--target $principal
+	done
+
 	aws iot delete-thing \
 		--thing-name $thing_name
-	rm -f $thing_name.cert.pem
-	rm -f $thing_name.private.key
-	rm -f $thing_name.public.key
+	rm -f .certs/$thing_name.pem
+	rm -f .certs/$thing_name.private.key
+	rm -f .certs/$thing_name.public.key
+done
+
+echo "Deleting IoT certificates..."
+for cert_id in $(aws iot list-certificates --query certificates[].certificateId --output text); do
+	aws iot update-certificate --certificate-id $cert_id --new-status INACTIVE
+	aws iot delete-certificate --certificate-id $cert_id
 done
 
 echo "Deleting IoT policy..."
 aws iot delete-policy \
-	--policy-name Taxi_policy
+	--policy-name $policy_name
 echo "done"
