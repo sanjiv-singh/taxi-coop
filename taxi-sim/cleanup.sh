@@ -32,6 +32,30 @@ echo "Deleting IoT thing group..."
 aws iot delete-thing-group \
 	--thing-group-name Taxi_group
 
+echo "Deleting IoT certificates..."
+for cert_id in $(aws iot list-thing-registrations \
+	--thing-group-name Taxi_group \
+	--query 'registrations[].certificateId' \
+	--output text); do
+	aws iot update-certificate \
+		--certificate-id $cert_id \
+		--new-status INACTIVE
+	aws iot delete-certificate \
+		--certificate-id $cert_id
+done
+
+echo "Deleting IoT things..."
+for thing_name in $(aws iot list-thing-registrations \
+	--thing-group-name Taxi_group \
+	--query 'registrations[].thingName' \
+	--output text); do
+	aws iot delete-thing \
+		--thing-name $thing_name
+	rm -f $thing_name.cert.pem
+	rm -f $thing_name.private.key
+	rm -f $thing_name.public.key
+done
+
 echo "Deleting IoT policy..."
 aws iot delete-policy \
 	--policy-name Taxi_policy

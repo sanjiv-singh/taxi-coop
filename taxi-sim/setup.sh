@@ -7,6 +7,10 @@ iot_logging_policy_arn='arn:aws:iam::aws:policy/service-role/AWSIoTLogging'
 iot_rule_actions_policy_arn='arn:aws:iam::aws:policy/service-role/AWSIoTRuleActions'
 docdb_policy_arn='arn:aws:iam::aws:policy/AmazonDocDBFullAccess'
 
+if [ ! -d .certs ]; then
+    mkdir .certs
+fi
+
 echo "Creating IoT policy....."
 aws iot create-policy \
     --policy-name Taxi_policy \
