@@ -41,10 +41,11 @@ class MQTTClient:
 
 
     def _connect(self):
-        # Connect and subscribe to AWS IoT
+        # Connect to AWS IoT
         self._client.connect()
     
     def _subscribe(self, topic):
+        # Subscribe to AWS IoT
         self._client.subscribe(topic, 1, custom_callback)
 
     async def main_loop(self, delay):
