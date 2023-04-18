@@ -6,6 +6,7 @@ from enum import Enum
 from uuid import uuid4
 import random
 import asyncio
+import datetime
 
 
 class TaxiClass(int, Enum):
@@ -39,11 +40,19 @@ class Taxi(MQTTClient):
     def connect(self):
         self._connect()
     
-    def subscribe(self):
-        self._subscribe(f'{self._topic}/{self._taxi_id}')
+    def disconnect(self):
+        self._disconnect()
     
-    def get_data(self):
-        return self._data
+    def subscribe(self):
+        self._subscribe(f'{self._topic}/{self._taxi_id}', callback=self._on_message)
+    
+    async def publish(self):
+        timestamp = str(datetime.datetime.now())
+        self._data['timestamp'] = timestamp
+        self._publish_data(self._topic, self._data)
+
+    def _on_message(self, client, userdata, msg):
+        print(f"Message received: {msg.payload}")
     
     async def _drive(self):
         while True:
@@ -56,4 +65,15 @@ class Taxi(MQTTClient):
             except KeyboardInterrupt:
                 break
 
+    async def main_loop(self, delay):
+        while True:
+            try:
+                await asyncio.sleep(delay)
+                await self.publish()
+            except KeyboardInterrupt:
+                break
+
+        print("Closing connection ..")
+        self.disconnect()
+        print("Connection closed.")
     

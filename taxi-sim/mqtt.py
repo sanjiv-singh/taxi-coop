@@ -32,13 +32,10 @@ class MQTTClient:
         self._client = self.create_client()
 
 
-    async def publish_data(self):
+    def _publish_data(self, topic, data):
         try:
-            timestamp = str(datetime.datetime.now())
-            message = self.get_data()
-            message['timestamp'] = timestamp
-            messageJson = json.dumps(message)
-            self._client.publish(self._topic, messageJson, 1)
+            messageJson = json.dumps(data)
+            self._client.publish(topic, messageJson, 1)
             print('Published topic %s: %s\n' % (self._topic, messageJson))
 
         except publishTimeoutException:
@@ -50,17 +47,18 @@ class MQTTClient:
         # Connect to AWS IoT
         self._client.connect()
     
-    def _subscribe(self, topic):
-        # Subscribe to AWS IoT
-        self._client.subscribe(topic, 1, custom_callback)
+    def _disconnect(self):
+        # Disconnect from AWS IoT
+        self._client.connect()
+    
+    def _subscribe(self, topic, callback=custom_callback):
+        # Subscribe to AWS IoT topic
+        self._client.subscribe(topic, 1, callback)
 
-    async def main_loop(self, delay):
-        while True:
-            try:
-                await asyncio.sleep(delay)
-                await self.publish_data()
-            except KeyboardInterrupt:
-                break
+    def main_loop(self, delay):
+        """The main loop of the MQTT client"""
+        """Override this method to implement your own logic"""
+        pass
 
         print("Intiate the connection closing process from AWS.")
         self._client.disconnect()

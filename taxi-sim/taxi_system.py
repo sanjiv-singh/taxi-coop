@@ -5,8 +5,6 @@ import random
 
 from taxi import Taxi, TaxiClass
 
-AllowedActions = ['both', 'publish', 'subscribe']
-
 AWS_IOT_CLIENT = boto3.client('iot')
 
 class TaxiFactory:
