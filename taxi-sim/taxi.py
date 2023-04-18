@@ -6,15 +6,14 @@ from enum import Enum
 from uuid import uuid4
 import random
 import asyncio
-import time
 
 
-class TaxiClass(Enum):
+class TaxiClass(int, Enum):
     DELUXE = 0
     LUXARY = 1
     UTILITY = 2
 
-class TaxiStatus(Enum):
+class TaxiStatus(int, Enum):
     NAVL = 0
     AVL = 1
     BOOKED = 2
@@ -27,16 +26,14 @@ def create_random_location(south_west, north_east):
 
 class Taxi(MQTTClient):
 
-    def __init__(self, config: ConfigurationManager):
+    def __init__(self, config: ConfigurationManager, taxi_class=TaxiClass.DELUXE):
         self._config = config
         self._taxi_id = str(uuid4())
         self._topic = self._config.topicRoot
-        self._taxi_class = TaxiClass.DELUXE
+        self._taxi_class = taxi_class
         self._status = TaxiStatus.AVL
         self._lat, self._lng = create_random_location((12.8, 77.5), (13.5, 78.2))
-        self._start = time.perf_counter()
-        self._elapsed_time = self._start
-        self._data = dict(id=str(self._taxi_id), lat=self._lat, lng=self._lng)
+        self._data = dict(id=str(self._taxi_id), taxi_class=self._taxi_class, status=self._status, lat=self._lat, lng=self._lng)
         super(Taxi, self).__init__()
     
     def connect(self):
