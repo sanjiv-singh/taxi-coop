@@ -11,7 +11,7 @@ if [ ! -d .certs ]; then
     mkdir .certs
 fi
 if [ ! -f .certs/AmazonRootCA1.pem ]; then
-    wget -O .certs/AmazonRootCA1.pem wget https://www.amazontrust.com/repository/AmazonRootCA1.pem
+    wget -O .certs/AmazonRootCA1.pem https://www.amazontrust.com/repository/AmazonRootCA1.pem
 fi
 
 echo "Creating IoT policy....."
