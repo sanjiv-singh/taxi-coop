@@ -1,5 +1,4 @@
 {
-    "host": "a3eiore48b4qfq-ats.iot.us-east-1.amazonaws.com",
     "port": "8883",
     "thing_type": "TAXI",
     "thing_type_desc": "Taxi device",

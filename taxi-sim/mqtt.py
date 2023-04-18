@@ -97,11 +97,15 @@ class MQTTClient:
             thingGroupName=self._config.thingGroup
         )
 
+    def _get_endpoint(self):
+        return AWS_IOT.describe_endpoint().get('endpointAddress')
+
     def create_client(self):
         # Init AWSIoTMQTTClient
         myAWSIoTMQTTClient = None
         myAWSIoTMQTTClient = AWSIoTMQTTClient(self._taxi_id)
-        myAWSIoTMQTTClient.configureEndpoint(self._config.host, int(self._config.port))
+        myAWSIoTMQTTClient.configureEndpoint(self._get_endpoint(), int(self._config.port))
+        #myAWSIoTMQTTClient.configureEndpoint(self._config.host, int(self._config.port))
         ca_cert = self.rootCAPath = os.path.join(self._config.certPath, 'AmazonRootCA1.pem')
         private_key = os.path.join(self._config.certPath, f'{self._taxi_id}.private.key')
         cert = os.path.join(self._config.certPath, f'{self._taxi_id}.pem')

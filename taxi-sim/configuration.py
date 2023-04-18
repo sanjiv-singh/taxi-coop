@@ -21,7 +21,7 @@ class ConfigurationManager:
     def configure(self, config_file_name: str):
 
         self._config = self._load_config(config_file_name)
-        self.host = self._config.get('host')
+        #self.host = self._config.get('host')
         self.port = self._config.get('port')
         self.certPath = self._config.get('cert_path')
         self.thingGroup = self._config.get('thing_group')
