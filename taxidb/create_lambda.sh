@@ -15,15 +15,45 @@ create_lambda () {
         --query "Role.Arn" --output text)
     sleep 5
 
+    security_group_ids=""
+    for security_group in $(aws ec2 describe-security-groups --query SecurityGroups[].GroupId --output text); do
+	if [ -z "$security_group_ids" ]; then
+		security_group_ids+=$security_group
+	else
+		security_group_ids+=","
+		security_group_ids+=$security_group
+	fi
+    done
+
+    subnet_ids=""
+    for subnet in $(aws ec2 describe-subnets --query Subnets[].SubnetId --output text); do
+	if [ -z "$subnet_ids" ]; then
+		subnet_ids+=$subnet
+	else
+		subnet_ids+=","
+		subnet_ids+=$subnet
+	fi
+    done
+
+    end_point=$(aws docdb describe-db-clusters --query DBClusters[].Endpoint --output text)
+
+
     aws lambda create-function \
         --function-name taxidb_lambda \
         --runtime python3.9 \
-        --environment "Variables={db_user=test,db_pass=test1234,db_endpoint=mycluster.cluster-c74mo2mt0rvc.us-east-1.docdb.amazonaws.com:27017}" \
-        --zip-file fileb://deployment-package.zip \
-        --handler lambda_function.lambda_handler \
+        --environment "Variables={db_user=test,db_pass=test1234,db_endpoint=$end_point}" \
+        --zip-file fileb://taxidb_lambda_package.zip \
+        --handler taxidb_lambda.lambda_handler \
         --role $role_arn \
-        --vpc-config SubnetIds=subnet-0a4956e09a52c594c,subnet-0aecb108377ed3b7e,subnet-0801b6c501aacb30e,subnet-0b2044c45ca0592f6,subnet-09737fb91fe99ea7e,subnet-000875ba62d350334,SecurityGroupIds=sg-0f7284c74d27fba32
+        --vpc-config SubnetIds=$subnet_ids,SecurityGroupIds=$security_group_ids
 
 }
 
 create_lambda
+
+aws lambda add-permission \
+	--function-name taxidb_lambda \
+	--statement-id iot-events \
+	--action "lambda:InvokeFunction" \
+	--principal iot.amazonaws.com
+

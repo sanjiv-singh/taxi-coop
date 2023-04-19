@@ -64,3 +64,12 @@ aws iot create-thing-group \
 	--thing-group-name Taxi_group \
 	--thing-group-properties "thingGroupDescription=Taxi Group"
 echo "done"
+
+echo "Creating IoT topic rule....."
+lambda_arn=$(aws lambda get-function --function-name taxidb_lambda --query Configuration.FunctionArn --output text)
+echo "{\"sql\": \"SELECT * FROM 'iot/TAXI'\",\"ruleDisabled\": false,\"awsIotSqlVersion\": \"2016-03-23\",\"actions\": [{\"lambda\": {\"functionArn\": \"$lambda_arn\"}}]}" > rule.json
+
+aws iot create-topic-rule \
+	--rule-name taxi_iot_lambda_rule \
+	--topic-rule-payload file://rule.json
+echo "done"

@@ -1,4 +1,5 @@
 import os
+import json
 import pymongo
 
 
@@ -16,30 +17,18 @@ password = os.environ.get("db_pass")
 clusterendpoint = os.environ.get("db_endpoint")
 
 def lambda_handler(event, context):   
-    print("connecting to taxidb")
+
+    taxi_data = event
+    print(taxi_data)
+
+    #Connect to Amazon DocumentDB
     client = pymongo.MongoClient(clusterendpoint, username=username, password=password, tls='true', tlsCAFile='rds-combined-ca-bundle.pem',retryWrites='false')
-    print("connected")
     db = client.taxidb
-    print(db)
-    profiles = db['profiles']
-    print(profiles)
+    taxi_collection = db['taxies']
 
     #Insert data
-    print("inserting data to profiles collection")
-    profiles.insert_many(SEED_DATA)
+    taxi_collection.insert_one(event)
     print("Successfully inserted data")
 
-    #Find a document
-    query = {'name': 'Jane'}
-    print("Printing query results")
-    print(profiles.find_one(query))
-
-    #Update a document
-    print("Updating document")
-    profiles.update_one(query, {'$set': {'level': 4}})
-    print(profiles.find_one(query))
-
-    #Clean up
-    db.drop_collection('profiles')
     client.close()
 
