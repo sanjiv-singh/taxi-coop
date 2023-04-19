@@ -7,6 +7,7 @@ from uuid import uuid4
 import random
 import asyncio
 import datetime
+from bson.objectid import ObjectId
 
 
 class TaxiClass(int, Enum):
@@ -29,13 +30,20 @@ class Taxi(MQTTClient):
 
     def __init__(self, config: ConfigurationManager, taxi_class=TaxiClass.DELUXE):
         self._config = config
-        self._taxi_id = str(uuid4())
+        self._taxi_id = '%024x' % random.randrange(16**24)
+        #self._taxi_id = str(uuid4())
         self._topic = self._config.topicRoot
         self._taxi_class = taxi_class
         self._status = TaxiStatus.AVL
         self._lat, self._lng = create_random_location((12.8, 77.5), (13.5, 78.2))
-        self._data = dict(id=str(self._taxi_id), taxi_class=self._taxi_class, status=self._status, lat=self._lat, lng=self._lng)
         super(Taxi, self).__init__()
+
+    @property
+    def _location(self):
+        return {
+                "type": "Point",
+                "coordinates": [self._lng, self._lat]
+        }
     
     def connect(self):
         self._connect()
@@ -47,9 +55,13 @@ class Taxi(MQTTClient):
         self._subscribe(f'{self._topic}/{self._taxi_id}', callback=self._on_message)
     
     async def publish(self):
-        timestamp = str(datetime.datetime.now())
-        self._data['timestamp'] = timestamp
-        self._publish_data(self._topic, self._data)
+        data = {}
+        data['taxi_id'] = self._taxi_id
+        data['taxi_class'] = self._taxi_class
+        data['status'] = self._status
+        data['location'] = self._location
+        data['timestamp'] = str(datetime.datetime.now())
+        self._publish_data(self._topic, data)
 
     def _on_message(self, client, userdata, msg):
         print(f"Message received: {msg.payload}")
@@ -60,8 +72,6 @@ class Taxi(MQTTClient):
                 await asyncio.sleep(random.uniform(0.2, 2.0))
                 self._lat += random.uniform(-0.1, 0.1)
                 self._lng += random.uniform(-0.1, 0.1)
-                self._data['lat'] = self._lat
-                self._data['lng'] = self._lng
             except KeyboardInterrupt:
                 break
 
