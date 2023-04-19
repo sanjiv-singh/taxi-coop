@@ -38,10 +38,11 @@ create_lambda () {
     end_point=$(aws docdb describe-db-clusters --query DBClusters[].Endpoint --output text)
 
 
+    zip -r taxidb_lambda_package.zip taxidb_lambda.py
     aws lambda create-function \
         --function-name taxidb_lambda \
         --runtime python3.9 \
-        --environment "Variables={db_user=test,db_pass=test1234,db_endpoint=$end_point}" \
+        --environment "Variables={db_user=$DB_USER,db_pass=$DB_PASSWORD,db_endpoint=$end_point}" \
         --zip-file fileb://taxidb_lambda_package.zip \
         --handler taxidb_lambda.lambda_handler \
         --role $role_arn \
@@ -49,7 +50,21 @@ create_lambda () {
 
 }
 
+if [ -z "$DB_USER" ]; then
+	echo "DB_USER is not set"
+	echo "Please set the environment variable DB_USER"
+	echo "e.g. export DB_USER=taxi"
+	exit 1
+fi
+if [ -z "$DB_PASSWORD" ]; then
+	echo "DB_PASSWORD is not set"
+	echo "Please set the environment variable DB_PASSWORD"
+	echo "e.g. export DB_PASSWORD=taxi"
+	exit 1
+fi
+
 create_lambda
+sleep 5
 
 aws lambda add-permission \
 	--function-name taxidb_lambda \
