@@ -1,0 +1,22 @@
+[
+        {
+            "ParameterKey": "DBClusterName",
+            "ParameterValue": "taxi-cluster"
+        },
+        {
+            "ParameterKey": "DBInstanceName",
+            "ParameterValue": "taxi-instance"
+        },
+        {
+            "ParameterKey": "DBInstanceClass",
+            "ParameterValue": "db.t3.medium"
+        },
+        {
+            "ParameterKey": "MasterUser",
+            "ParameterValue": "taxi"
+        },
+        {
+            "ParameterKey": "MasterPassword",
+            "ParameterValue": "taxi1234"
+        }
+]
