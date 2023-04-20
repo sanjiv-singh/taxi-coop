@@ -12,6 +12,18 @@ Parameters:
   NorthEast:
     Type: String
     Default: 21.0,81.0
+  DBUser:
+    Type: String
+    Description: Document DB User
+    Default: taxi
+  DBPass:
+    Type: String
+    Description: Document DB Password
+    Default: taxi1234
+  DBEndPoint:
+    Type: String
+    Description: Document DB Endpoint
+    Default: My Endpoint
 
 Globals:
   Function:
@@ -39,7 +51,7 @@ Resources:
             Method: any
 
   TCDirectionsFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: tc_directions/
       Handler: app.lambda_handler
@@ -48,10 +60,45 @@ Resources:
         - x86_64
       Events:
         TCDirections:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /directions
             Method: any
+
+  TCGetTaxisFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: tc_get_taxis/
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          db_user: !Ref DBUser
+          db_pass: !Ref DBPass
+          db_endpoint: !Ref DBEndPoint
+      VpcConfig:
+          SecurityGroupIds: 
+              - sg-0f7284c74d27fba32
+          SubnetIds: 
+              - subnet-0a4956e09a52c594c
+              - subnet-0aecb108377ed3b7e
+              - subnet-0801b6c501aacb30e
+              - subnet-0b2044c45ca0592f6
+              - subnet-09737fb91fe99ea7e
+              - subnet-000875ba62d350334
+      Events:
+        TCGetTaxis:
+          Type: Api
+          Properties:
+            Path: /taxi
+            Method: get
+        TCGetTaxi:
+          Type: Api
+          Properties:
+            Path: /taxi/{id}
+            Method: get
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -76,3 +123,14 @@ Outputs:
   TCDirectionsFunctionIamRole:
     Description: "Implicit IAM Role created for Directions function"
     Value: !GetAtt TCDirectionsFunctionRole.Arn
+
+  TCGetTaxisApi:
+    Description: "API Gateway endpoint URL for Prod stage for Get Taxis function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/taxi/"
+  TCGetTaxisFunction:
+    Description: "Get Taxis Lambda Function ARN"
+    Value: !GetAtt TCGetTaxisFunction.Arn
+  TCGetTaxisFunctionIamRole:
+    Description: "Implicit IAM Role created for Get Taxis function"
+    Value: !GetAtt TCGetTaxisFunctionRole.Arn
+
