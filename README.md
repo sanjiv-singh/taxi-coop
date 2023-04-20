@@ -130,9 +130,9 @@ To clean up the cloud infrastructure, follow these steps:-
 
 ## Credits
 
-Sanjiv Singh
-Sesha Reddy Koilkonda
-Kishore Kaluri
+-Sanjiv Singh
+-Sesha Reddy Koilkonda
+-Kishore Kaluri
 
 The project was undertaken as part of course on Software Engineering for Cloud Computing, IoI and Blockchain by Great Learning in collaboration with Indian Institute of Technology, Madras
 
