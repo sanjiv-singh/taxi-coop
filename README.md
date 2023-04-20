@@ -87,10 +87,7 @@ The setup process involves the following steps.
 ```bash
     $ cd taxidb
 
-    $ aws cloudformation create-stack \
-        --stack-name taxidb \
-        --template-body file://taxidb.yml \
-        --parameters file://taxidb_params.json
+    $ ./create_db.sh
     
     $  ./create_lambda.sh
 ```
