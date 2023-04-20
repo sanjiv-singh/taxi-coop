@@ -54,7 +54,7 @@ Scripts for provisioning of IoT Core infrastructure can be found in the `taxi-si
 
 #### API Gateway and Lambda Functions
 
-The entire backend API is designed using serverless architecture for cost-effectiveness and ease of post deployment management. The serverless components are deployed using AWS SAM (Serverless Application Management). The various serverless modules and their functionality are as follows:-
+The entire backend API is designed using serverless architecture for cost-effectiveness and ease of post deployment management. The serverless components are deployed using AWS SAM (Serverless Application Model). The various serverless modules and their functionality are as follows:-
 
 * `tc_geocoder` - Uses Google Maps API for conversion of location address to location coordinates (latitude/longitude). This enables the client to specify the destination as address rather than lat long coordinates.
 * `tc_directions` - Uses Google Maps API to find driving directions from origin to destination. Returns an array of steps with lat long coordinates. These coordinates are to be used by the taxi client for navigating from origin to destination.
