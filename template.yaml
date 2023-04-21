@@ -156,3 +156,13 @@ Outputs:
     Description: "Implicit IAM Role created for Get Taxis function"
     Value: !GetAtt TCGetTaxisFunctionRole.Arn
 
+  TCRequestRideApi:
+    Description: "API Gateway endpoint URL for Prod stage for Requesting Taxis for ride"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/request-ride/"
+  TCRequestRideFunction:
+    Description: "Get Request Ride Lambda Function ARN"
+    Value: !GetAtt TCRequestRideFunction.Arn
+  TCRequestRideFunctionIamRole:
+    Description: "Implicit IAM Role created for Request Ride function"
+    Value: !GetAtt TCRequestRideFunctionRole.Arn
+

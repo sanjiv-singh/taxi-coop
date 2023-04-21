@@ -5,10 +5,14 @@
 # Check is DB_USER and DB_PASSWORD are set
 if [ -z "$DB_USER" ]; then
     echo "DB_USER is not set"
+    echo "Please set the DB_USER environment variable"
+    echo "export DB_USER=<your db user>"
     exit 1
 fi
 if [ -z "$DB_PASSWORD" ]; then
     echo "DB_PASSWORD is not set"
+    echo "Please set the DB_PASSWORD environment variable"
+    echo "export DB_PASSWORD=<your db password>"
     exit 1
 fi
 
@@ -18,6 +22,7 @@ sam build
 
 # Copy the RDS CA bundle to the build directory of function that needs to call DocumentDB
 cp taxidb/package/rds-combined-ca-bundle.pem .aws-sam/build/TCGetTaxisFunction/
+cp taxidb/package/rds-combined-ca-bundle.pem .aws-sam/build/TCRequestRideFunction/
 
 # Query AWS to get the required parameters for deployment
 
