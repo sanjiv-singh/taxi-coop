@@ -50,7 +50,7 @@ Scripts for provisioning of IoT Core infrastructure can be found in the `taxi-si
 
 * `setup.sh` - Script for provisiong IoT Thing Group and Type along with IAM role and IoT policy.
 * `cleanup.sh` - Script for cleaning up all IoT Core resources including certificates.
-* The `setup.py` script also provisions the Message Routing Rule for routing data to the `taxidb_lambda` function for ingestion into DocumentDB.
+* The `setup.sh` script also provisions the Message Routing Rule for routing data to the `taxidb_lambda` function for ingestion into DocumentDB.
 
 #### API Gateway and Lambda Functions
 
@@ -96,7 +96,7 @@ The setup process involves the following steps.
 ```bash
     $ cd ../taxi-sim
 
-    $ ./setup.py
+    $ ./setup.sh
 ```
 6.    Change directory to main folder and run this command to deploy the APIs and Lambda functions:-
 
