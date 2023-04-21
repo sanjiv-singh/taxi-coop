@@ -98,12 +98,14 @@ The setup process involves the following steps.
 
     $ ./setup.py
 ```
-6.    Change directory to each of the SAM folders e.g. `tc_geocoder` and run these commands:-
+6.    Change directory to main folder and run this command to deploy the APIs and Lambda functions:-
 
 ```bash
-    $ cd ../tc_geocoder
-    $ sam deploy
+    $ cd ..
+    $ ./setup_apis.sh
 ```
+
+The API end point for TCGetTaxis should be in the output. Copy the URL and open it in browser.
 
 7.    Change directory back to `taxi-sim` and start the taxi simulator
 
@@ -111,6 +113,9 @@ The setup process involves the following steps.
     $ cd ../taxi-sim
     $ python main.py
 ```
+
+Now refresh the bowser page opened above and if everything went well, you should see taxi data in JSON format in your browser.
+
 
 ## Cleanup
 
@@ -121,11 +126,17 @@ To clean up the cloud infrastructure, follow these steps:-
     $ ./cleanup.sh
 ```
 
-2.    In the taxidb folcer, run the following commands:-
+2.    In the taxidb folder, run the following commands:-
 
 ```bash
     $ aws lambda delete-function --function-name taxidb_lambda
     $ aws cloudformation delete-stack --stack-name taxidb
+```
+
+3.    In the main folder, run the following command:-
+
+```bash
+    $ sam delete-stack --stack-name taxi-coop
 ```
 
 ## Credits
