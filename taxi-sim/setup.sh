@@ -66,16 +66,28 @@ aws iot create-thing-group \
 echo "done"
 
 echo "Creating IoT topic rule....."
-echo "Run this step only after creating the lambda function"
-read -r -p "Are you sure? [y/N] " response
+echo "Run this step only after creating the lambda function taxidb_lambda"
+read -r -p "Continue rule creation? [y/N] " response
 if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
 then
 	lambda_arn=$(aws lambda get-function --function-name taxidb_lambda --query Configuration.FunctionArn --output text)
-	echo "{\"sql\": \"SELECT * FROM 'iot/TAXI'\",\"ruleDisabled\": false,\"awsIotSqlVersion\": \"2016-03-23\",\"actions\": [{\"lambda\": {\"functionArn\": \"$lambda_arn\"}}]}" > rule.json
+	cat <<EOF > rule.json
+	{
+          "sql": "SELECT * FROM 'iot/TAXI'", 
+          "ruleDisabled": false, 
+          "awsIotSqlVersion": "2016-03-23",
+          "actions": [{
+            "lambda": {
+              "functionArn": "$lambda_arn"
+            }
+          }]
+	}
+EOF
 
 	aws iot create-topic-rule \
 		--rule-name taxi_iot_lambda_rule \
 		--topic-rule-payload file://rule.json
+	rm -rf rule.json
 	echo "done"
 else
 	echo "Skipping step"

@@ -30,6 +30,10 @@ echo "Deleting IAM role..."
 aws iam delete-role \
 	--role-name Taxi_role
 
+echo "Deleting IoT topic rule..."
+aws iot delete-topic-rule \
+        --rule-name taxi_iot_lambda_rule
+
 echo "Deleting IoT thing group..."
 aws iot delete-thing-group \
 	--thing-group-name Taxi_group
