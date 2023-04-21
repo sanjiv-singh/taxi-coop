@@ -99,6 +99,29 @@ Resources:
             Path: /taxi/{id}
             Method: get
 
+  TCRequestRideFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: tc_request_ride/
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          db_user: !Ref DBUser
+          db_pass: !Ref DBPass
+          db_endpoint: !Ref DBEndPoint
+      VpcConfig:
+          SecurityGroupIds: !Ref DBSecurityGroups
+          SubnetIds: !Ref DBSubnets
+      Events:
+        TCGetTaxis:
+          Type: Api
+          Properties:
+            Path: /request-ride
+            Method: post
+
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
