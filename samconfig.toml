@@ -15,13 +15,12 @@ lint = true
 
 [default.deploy.parameters]
 capabilities = "CAPABILITY_IAM"
-confirm_changeset = true
+confirm_changeset = false
 resolve_s3 = true
 s3_prefix = "taxi-coop"
 region = "us-east-1"
 image_repositories = []
-parameter_overrides = "SouthWest=\"20.8,80.8\" NorthEast=\"21.0,81.0\" DBUser=\"taxi\" DBPass=\"taxi1234\" DBEndPoint=\"taxi-cluster.cluster-c74mo2mt0rvc.us-east-1.docdb.amazonaws.com\""
-disable_rollback = true
+disable_rollback = false
 
 [default.package.parameters]
 resolve_s3 = true

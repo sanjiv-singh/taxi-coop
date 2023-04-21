@@ -24,6 +24,12 @@ Parameters:
     Type: String
     Description: Document DB Endpoint
     Default: My Endpoint
+  DBSecurityGroups:
+    Type: CommaDelimitedList
+    Description: Security Groupd Ids of DB Cluster VPC
+  DBSubnets:
+    Type: CommaDelimitedList
+    Description: Subnets in DB Cluster VPC
 
 Globals:
   Function:
@@ -79,15 +85,8 @@ Resources:
           db_pass: !Ref DBPass
           db_endpoint: !Ref DBEndPoint
       VpcConfig:
-          SecurityGroupIds: 
-              - sg-0f7284c74d27fba32
-          SubnetIds: 
-              - subnet-0a4956e09a52c594c
-              - subnet-0aecb108377ed3b7e
-              - subnet-0801b6c501aacb30e
-              - subnet-0b2044c45ca0592f6
-              - subnet-09737fb91fe99ea7e
-              - subnet-000875ba62d350334
+          SecurityGroupIds: !Ref DBSecurityGroups
+          SubnetIds: !Ref DBSubnets
       Events:
         TCGetTaxis:
           Type: Api
