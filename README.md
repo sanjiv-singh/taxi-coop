@@ -80,6 +80,7 @@ The setup process involves the following steps.
     $ pip3 install AWSIoTPythonSDK
     $ pip3 install awsiotsdk
     $ pip3 install bson
+    $ pip3 install aws-sam-cli
 ```
 
 4.   Change directory to `taxi-db` and run the following commands:-
@@ -138,7 +139,7 @@ To clean up the cloud infrastructure, follow these steps:-
 
 ```bash
     $ cd ../taxi-api
-    $ sam delete-stack --stack-name taxi-coop
+    $ sam delete --stack-name taxi-coop
 ```
 
 ## Credits
