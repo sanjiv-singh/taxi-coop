@@ -30,7 +30,7 @@ The datastore for the application is hosted on Amazon DocumentDB (with MongoDB 4
 * Supports queries and aggregations with MongoDB 4.0 compatibility.
 * Supports GeoIndexing and location based queries.
 
-Code related to deployment and updation of the database is located in the `taxidb` folder. It contains the following:-
+Code related to deployment and updation of the database is located in the `taxi-db` folder. It contains the following:-
 
 * `taxidb.yml` - Cloudformation template for provisioning of the DB Cluster and DB instances.
 * `taxidb_lambda.py` - Lambda function for ingestion of data into DocumentDB cluster. This lambda function is provisioned in the same VPC as the db cluster to allow access.
@@ -46,7 +46,7 @@ Used for ingestion of taxi data including location updates in near real time. Th
 * Pub/Sub Architecture allows message routing to multiple clients (e.g. multiple taxis receiving user requests)
 * X.509 certificate based registration and authentication for each taxi.
 
-Scripts for provisioning of IoT Core infrastructure can be found in the `taxi-sim` folder.
+Scripts for provisioning of IoT Core infrastructure can be found in the `taxi-iot` folder.
 
 * `setup.sh` - Script for provisiong IoT Thing Group and Type along with IAM role and IoT policy.
 * `cleanup.sh` - Script for cleaning up all IoT Core resources including certificates.
@@ -54,7 +54,7 @@ Scripts for provisioning of IoT Core infrastructure can be found in the `taxi-si
 
 #### API Gateway and Lambda Functions
 
-The entire backend API is designed using serverless architecture for cost-effectiveness and ease of post deployment management. The serverless components are deployed using AWS SAM (Serverless Application Model). The various serverless modules and their functionality are as follows:-
+The entire backend API is designed using serverless architecture for cost-effectiveness and ease of post deployment management. The serverless components are deployed using AWS SAM (Serverless Application Model). The various serverless modules are located in the `taxi-api` folder. Their functionalities are as follows:-
 
 * `tc_geocoder` - Uses Google Maps API for conversion of location address to location coordinates (latitude/longitude). This enables the client to specify the destination as address rather than lat long coordinates.
 * `tc_directions` - Uses Google Maps API to find driving directions from origin to destination. Returns an array of steps with lat long coordinates. These coordinates are to be used by the taxi client for navigating from origin to destination.
@@ -82,35 +82,35 @@ The setup process involves the following steps.
     $ pip3 install bson
 ```
 
-4.   Change directory to `taxidb` and run the following commands:-
+4.   Change directory to `taxi-db` and run the following commands:-
 
 ```bash
-    $ cd taxidb
+    $ cd taxi-db
 
     $ ./create_db.sh
     
     $  ./create_lambda.sh
 ```
-5.    Change directory to `taxi-sim` and run these commands:-
+5.    Change directory to `taxi-iot` and run these commands:-
 
 ```bash
-    $ cd ../taxi-sim
+    $ cd ../taxi-iot
 
     $ ./setup.sh
 ```
-6.    Change directory to main folder and run this command to deploy the APIs and Lambda functions:-
+6.    Change directory to `taxi-api` folder and run this command to deploy the APIs and Lambda functions:-
 
 ```bash
-    $ cd ..
+    $ cd ..taxi-api
     $ ./setup_apis.sh
 ```
 
 The API end point for TCGetTaxis should be in the output. Copy the URL and open it in browser.
 
-7.    Change directory back to `taxi-sim` and start the taxi simulator
+7.    Change directory back to `taxi-iot` and start the taxi simulator
 
 ```bash
-    $ cd ../taxi-sim
+    $ cd ../taxi-iot
     $ python main.py
 ```
 
@@ -121,21 +121,23 @@ Now refresh the bowser page opened above and if everything went well, you should
 
 To clean up the cloud infrastructure, follow these steps:-
 
-1.    In the `taxi-sim` folder run the command
+1.    In the `taxi-iot` folder run the command
 ```bash
     $ ./cleanup.sh
 ```
 
-2.    In the taxidb folder, run the following commands:-
+2.    In the taxi-db folder, run the following commands:-
 
 ```bash
+    $ cd ../tax-db
     $ aws lambda delete-function --function-name taxidb_lambda
     $ aws cloudformation delete-stack --stack-name taxidb
 ```
 
-3.    In the main folder, run the following command:-
+3.    In the `taxi-api` folder, run the following command:-
 
 ```bash
+    $ cd ../taxi-api
     $ sam delete-stack --stack-name taxi-coop
 ```
 
