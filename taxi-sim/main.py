@@ -1,7 +1,7 @@
 import asyncio
 from taxi_system import TaxiFactory
 
-PUBLISH_INTERVAL = 5
+PUBLISH_INTERVAL = 2
 
 
 async def main():
@@ -9,7 +9,7 @@ async def main():
     taxi_factory = TaxiFactory()
 
     tasks = []
-    for _ in range(10):
+    for _ in range(2):
         taxi = taxi_factory.create_taxi()
         taxi.connect()
         taxi.subscribe()
