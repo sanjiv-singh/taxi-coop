@@ -121,6 +121,28 @@ Resources:
           Properties:
             Path: /request-ride
             Method: post
+  TCUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: tc_users/
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          db_user: !Ref DBUser
+          db_pass: !Ref DBPass
+          db_endpoint: !Ref DBEndPoint
+      VpcConfig:
+          SecurityGroupIds: !Ref DBSecurityGroups
+          SubnetIds: !Ref DBSubnets
+      Events:
+        TCGetTaxis:
+          Type: Api
+          Properties:
+            Path: /create-user
+            Method: post
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -165,4 +187,13 @@ Outputs:
   TCRequestRideFunctionIamRole:
     Description: "Implicit IAM Role created for Request Ride function"
     Value: !GetAtt TCRequestRideFunctionRole.Arn
+  TCCreateUserApi:
+    Description: "API Gateway endpoint URL for Prod stage for Creating User"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/create-user/"
+  TCUserFunction:
+    Description: "Create User Lambda Function ARN"
+    Value: !GetAtt TCUserFunction.Arn
+  TCUserFunctionIamRole:
+    Description: "Implicit IAM Role created for Create User function"
+    Value: !GetAtt TCUserFunctionRole.Arn
 

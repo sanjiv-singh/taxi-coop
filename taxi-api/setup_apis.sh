@@ -23,6 +23,7 @@ sam build
 # Copy the RDS CA bundle to the build directory of function that needs to call DocumentDB
 cp ../taxi-db/package/rds-combined-ca-bundle.pem .aws-sam/build/TCGetTaxisFunction/
 cp ../taxi-db/package/rds-combined-ca-bundle.pem .aws-sam/build/TCRequestRideFunction/
+cp ../taxi-db/package/rds-combined-ca-bundle.pem .aws-sam/build/TCUserFunction/
 
 # Query AWS to get the required parameters for deployment
 
