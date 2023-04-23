@@ -2,7 +2,6 @@ import json
 import os
 import pymongo
 import pprint
-import requests
 from bson.objectid import ObjectId
 
 #Get Amazon DocumentDB ceredentials from environment variables
