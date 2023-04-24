@@ -18,9 +18,8 @@ db = client.taxidb
 print("Connected to Amazon DocumentDB")
 taxi_collection = db['taxi']
 
-def lambda_handler(event, context):
+def handle_get(event):
     print(event)
-
     if event.get('resource') == '/taxi/{id}':
         # Get single record by _id
         id = event['pathParameters']['id']
@@ -42,9 +41,57 @@ def lambda_handler(event, context):
         rows.append(row)
     print(rows)
 
-
     return {
         "statusCode": 200,
         "body": json.dumps(rows)
     }
+
+def handle_post(event):
+    print(event)
+    print('taxi lamda handler is called.')
+    body = json.loads(event["body"])
+
+    # Insert data
+    result = taxi_collection.insert_one(body)
+
+    return {
+        "statusCode": 200,
+        "body": "User registration is successful."
+    }
+
+
+def handle_delete(event):
+    print(event)
+    if event.get('resource') == '/taxi/{id}':
+        # Get single record by _id
+        id = event['pathParameters']['id']
+        print(id)
+        result = taxi_collection.delete_one({'_id': ObjectId(id)})
+        print(result)
+        result['_id'] = str(result['_id'])
+        print(result)
+        return {
+            "statusCode": 200,
+            "body": json.dumps(result)
+        }
+
+
+def handle_default(event):
+    return {
+        "statusCode": 200,
+        "body": json.dumps({
+            "message": "Method not implemented",
+        }),
+    }
+
+def lambda_handler(event, context):
+    method = event["httpMethod"]
+    if method == 'GET':
+        return handle_get(event)
+    elif method == 'POST':
+        return handle_post(event)
+    elif method == 'DELETE':
+        return handle_delete(event)
+    else:
+        return handle_default(event)
 

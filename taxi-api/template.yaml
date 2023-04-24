@@ -71,10 +71,10 @@ Resources:
             Path: /directions
             Method: any
 
-  TCGetTaxisFunction:
+  TCTaxisFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: tc_get_taxis/
+      CodeUri: tc_taxis/
       Handler: app.lambda_handler
       Runtime: python3.10
       Architectures:
@@ -98,6 +98,22 @@ Resources:
           Properties:
             Path: /taxi/{id}
             Method: get
+        TCPostTaxi:
+          Type: Api
+          Properties:
+            Path: /taxi/{id}
+            Method: post
+          TCDeleteTaxi:
+            Type: Api
+            Properties:
+              Path: /taxi/{id}
+              Method: delete
+          TCPatchUsers:
+            Type: Api
+            Properties:
+              Path: /taxi/{id}
+              Method: patch
+
 
   TCRequestRideFunction:
     Type: AWS::Serverless::Function
@@ -116,7 +132,7 @@ Resources:
           SecurityGroupIds: !Ref DBSecurityGroups
           SubnetIds: !Ref DBSubnets
       Events:
-        TCGetTaxis:
+        TCTaxis:
           Type: Api
           Properties:
             Path: /request-ride
@@ -138,7 +154,7 @@ Resources:
           SecurityGroupIds: !Ref DBSecurityGroups
           SubnetIds: !Ref DBSubnets
       Events:
-        TCGetTaxis:
+        TCTaxis:
           Type: Api
           Properties:
             Path: /create-user
@@ -168,15 +184,15 @@ Outputs:
     Description: "Implicit IAM Role created for Directions function"
     Value: !GetAtt TCDirectionsFunctionRole.Arn
 
-  TCGetTaxisApi:
+  TCTaxisApi:
     Description: "API Gateway endpoint URL for Prod stage for Get Taxis function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/taxi/"
-  TCGetTaxisFunction:
+  TCTaxisFunction:
     Description: "Get Taxis Lambda Function ARN"
-    Value: !GetAtt TCGetTaxisFunction.Arn
-  TCGetTaxisFunctionIamRole:
+    Value: !GetAtt TCTaxisFunction.Arn
+  TCTaxisFunctionIamRole:
     Description: "Implicit IAM Role created for Get Taxis function"
-    Value: !GetAtt TCGetTaxisFunctionRole.Arn
+    Value: !GetAtt TCTaxisFunctionRole.Arn
 
   TCRequestRideApi:
     Description: "API Gateway endpoint URL for Prod stage for Requesting Taxis for ride"
