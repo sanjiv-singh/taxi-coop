@@ -47,8 +47,12 @@ for subnet in $(aws ec2 describe-subnets --query Subnets[].SubnetId --output tex
     fi
 done
 
+# Get Register Lambda Arn
+REGISTER_LAMBDA_ARN=$(aws lambda get-function --function-name taxidb_register --query Configuration.FunctionArn --output text)
+
 # Deploy the lambda functions using sam deploy
-sam deploy --stack-name taxi-coop --parameter-overrides SouthWest=20.8,80.8 NorthEast=21.0,81.0 DBUser=$DB_USER DBPassword=$DB_PASSWORD DBEndPoint=$DB_ENDPOINT DBSecurityGroups=$VPC_SECURITY_GROUP_IDS DBSubnets=$VPC_SUBNET_IDS
+sam deploy --stack-name taxi-coop --parameter-overrides SouthWest=12.8,77.5 NorthEast=13.5,78.2 DBUser=$DB_USER DBPassword=$DB_PASSWORD DBEndPoint=$DB_ENDPOINT DBSecurityGroups=$VPC_SECURITY_GROUP_IDS DBSubnets=$VPC_SUBNET_IDS RegisterLambdaArn=$REGISTER_LAMBDA_ARN
+
 
 echo "Done"
 
