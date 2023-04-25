@@ -153,12 +153,32 @@ Resources:
       VpcConfig:
           SecurityGroupIds: !Ref DBSecurityGroups
           SubnetIds: !Ref DBSubnets
-      Events:
-        TCTaxis:
+      Events:        
+        TCGetUsers:
           Type: Api
           Properties:
-            Path: /create-user
+            Path: /users/{id}
+            Method: get
+        TCGetAllUsers:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: get
+        TCPostUsers:
+          Type: Api
+          Properties:
+            Path: /users
             Method: post
+        TCDeleteUsers:
+          Type: Api
+          Properties:
+            Path: /users/{id}
+            Method: delete
+        TCPatchUsers:
+          Type: Api
+          Properties:
+            Path: /users/{id}
+            Method: patch
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -203,13 +223,13 @@ Outputs:
   TCRequestRideFunctionIamRole:
     Description: "Implicit IAM Role created for Request Ride function"
     Value: !GetAtt TCRequestRideFunctionRole.Arn
-  TCCreateUserApi:
-    Description: "API Gateway endpoint URL for Prod stage for Creating User"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/create-user/"
+  TCUserFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for Creating, Retrieving and Deleting User"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/users/"
   TCUserFunction:
-    Description: "Create User Lambda Function ARN"
+    Description: "User Lambda Function ARN"
     Value: !GetAtt TCUserFunction.Arn
   TCUserFunctionIamRole:
-    Description: "Implicit IAM Role created for Create User function"
+    Description: "Implicit IAM Role created for User function"
     Value: !GetAtt TCUserFunctionRole.Arn
 
