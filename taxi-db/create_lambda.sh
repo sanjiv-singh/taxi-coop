@@ -48,6 +48,16 @@ create_lambda () {
         --role $role_arn \
         --vpc-config SubnetIds=$subnet_ids,SecurityGroupIds=$security_group_ids
 
+    zip -r taxidb_register_package.zip taxidb_register.py
+    aws lambda create-function \
+        --function-name taxidb_register \
+        --runtime python3.9 \
+        --environment "Variables={db_user=$DB_USER,db_pass=$DB_PASSWORD,db_endpoint=$end_point}" \
+        --zip-file fileb://taxidb_register_package.zip \
+        --handler taxidb_register.lambda_handler \
+        --role $role_arn \
+        --vpc-config SubnetIds=$subnet_ids,SecurityGroupIds=$security_group_ids
+
 }
 
 if [ -z "$DB_USER" ]; then

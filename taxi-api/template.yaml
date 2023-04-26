@@ -30,6 +30,21 @@ Parameters:
   DBSubnets:
     Type: CommaDelimitedList
     Description: Subnets in DB Cluster VPC
+  RegisterLambdaArn:
+    Type: String
+    Description: Arn of Lambda Function for Taxi Registration in DB
+  IoTPolicy:
+    Type: String
+    Description: IoT Policy
+    Default: Taxi_policy
+  IoTThingType:
+    Type: String
+    Description: IoT Thing Type
+    Default: TAXI
+  IoTThingGroup:
+    Type: String
+    Description: IoT Thing Group
+    Default: Taxi_group
 
 Globals:
   Function:
@@ -71,7 +86,38 @@ Resources:
             Path: /directions
             Method: any
 
-  TCTaxisFunction:
+  TCRegisterTaxiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: tc_register_taxi/
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          register_lambda_arn: !Ref RegisterLambdaArn
+          iot_policy: !Ref IoTPolicy
+          iot_thing_type: !Ref IoTThingType
+          iot_thing_group: !Ref IoTThingGroup
+      Policies:
+        - AWSIoTFullAccess
+        - Version: '2012-10-17'
+          Statement:
+          - Sid: LambdaInvokePolicy
+            Effect: Allow
+            Action:
+              - lambda:InvokeFunction
+              - lambda:InvokeAsync
+            Resource: !Ref RegisterLambdaArn
+      Events:
+        TCDirections:
+          Type: Api
+          Properties:
+            Path: /register_taxi
+            Method: post
+
+  TCGetTaxisFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: tc_taxis/
