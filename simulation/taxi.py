@@ -28,10 +28,9 @@ def create_random_location(south_west, north_east):
 
 class Taxi(MQTTClient):
 
-    def __init__(self, config: ConfigurationManager, taxi_class=TaxiClass.DELUXE):
+    def __init__(self, config: ConfigurationManager, taxi_id, taxi_class=TaxiClass.DELUXE):
         self._config = config
-        self._taxi_id = '%024x' % random.randrange(16**24)
-        #self._taxi_id = str(uuid4())
+        self._taxi_id = taxi_id
         self._topic = self._config.topicRoot
         self._taxi_class = taxi_class
         self._status = TaxiStatus.AVL

@@ -58,8 +58,9 @@ for thing_name in $(aws iot list-things --query things[].thingName --output text
 	aws iot delete-thing \
 		--thing-name $thing_name
 	rm -f .certs/$thing_name.pem
-	rm -f .certs/$thing_name.private.key
-	rm -f .certs/$thing_name.public.key
+	rm -f ../simulation/.certs/$thing_name.pem
+	rm -f ../simulation/.certs/$thing_name.private.key
+	rm -f ../simulation/.certs/$thing_name.public.key
 done
 
 echo "Deleting IoT certificates..."

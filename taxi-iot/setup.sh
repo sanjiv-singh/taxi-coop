@@ -13,6 +13,10 @@ fi
 if [ ! -f .certs/AmazonRootCA1.pem ]; then
     wget -O .certs/AmazonRootCA1.pem https://www.amazontrust.com/repository/AmazonRootCA1.pem
 fi
+if [ ! -d ../simulation/.certs ]; then
+    mkdir ../simulation/.certs
+fi
+cp .certs/AmazonRootCA1.pem ../simulation/.certs/AmazonRootCA1.pem
 
 echo "Creating IoT policy....."
 aws iot create-policy \

@@ -5,11 +5,8 @@ import datetime
 import json
 import os
 import asyncio
-import boto3
 
 from configuration import ConfigurationManager
-
-AWS_IOT = boto3.client('iot')
 
 # Custom MQTT message callback
 def custom_callback(client, userdata, message):
@@ -24,11 +21,6 @@ def custom_callback(client, userdata, message):
 class MQTTClient:
 
     def __init__(self):
-        self._iot_endpoint = AWS_IOT.describe_endpoint(
-                endpointType='iot:Data-ATS'
-        ).get('endpointAddress')
-        self.create_thing()
-        self.create_certificate()
         self._client = self.create_client()
 
 
@@ -64,40 +56,6 @@ class MQTTClient:
         self._client.disconnect()
         print("Connection closed.")
     
-    def create_certificate(self):
-        resp = AWS_IOT.create_keys_and_certificate(setAsActive=True)
-        data = json.loads(json.dumps(resp, sort_keys=False, indent=4))
-        for element in data:
-            if element == 'certificateArn':
-                cert_arn = data['certificateArn']
-            if element == 'keyPair':
-                key_pair = data['keyPair']
-        with open(f'{self._config.certPath}/{self._taxi_id}.public.key', 'w+') as pubkey_file:
-            pubkey_file.write(key_pair['PublicKey'])
-        with open(f'{self._config.certPath}/{self._taxi_id}.private.key', 'w+') as prikey_file:
-            prikey_file.write(key_pair['PrivateKey'])
-        with open(f'{self._config.certPath}/{self._taxi_id}.pem', 'w+') as cert_file:
-            cert_file.write(data['certificatePem'])
-
-        resp = AWS_IOT.attach_policy(
-            policyName=self._config.policyName,
-            target=cert_arn
-        )
-        resp = AWS_IOT.attach_thing_principal(
-            thingName=self._taxi_id,
-            principal=cert_arn
-        )
-    
-    def create_thing(self):
-        resp = AWS_IOT.create_thing(
-            thingName=self._taxi_id,
-            thingTypeName=self._config.thingType
-        )
-        resp = AWS_IOT.add_thing_to_thing_group(
-            thingName=self._taxi_id,
-            thingGroupName=self._config.thingGroup
-        )
-
     def create_client(self):
         # Init AWSIoTMQTTClient
         myAWSIoTMQTTClient = None
