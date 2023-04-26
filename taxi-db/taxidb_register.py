@@ -42,7 +42,7 @@ def lambda_handler(event, context):
 
 
     # Check if email is already registered
-    if taxi_col.find_one({"email": email}):
+    if taxi_col.find_one({"email": taxi_data["email"]}):
         return report_error("Email already registered")
 
     #Insert data
