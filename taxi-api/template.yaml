@@ -33,6 +33,18 @@ Parameters:
   RegisterLambdaArn:
     Type: String
     Description: Arn of Lambda Function for Taxi Registration in DB
+  IoTPolicy:
+    Type: String
+    Description: IoT Policy
+    Default: Taxi_policy
+  IoTThingType:
+    Type: String
+    Description: IoT Thing Type
+    Default: TAXI
+  IoTThingGroup:
+    Type: String
+    Description: IoT Thing Group
+    Default: Taxi_group
 
 Globals:
   Function:
@@ -85,6 +97,9 @@ Resources:
       Environment:
         Variables:
           register_lambda_arn: !Ref RegisterLambdaArn
+          iot_policy: !Ref IoTPolicy
+          iot_thing_type: !Ref IoTThingType
+          iot_thing_group: !Ref IoTThingGroup
       Policies:
         - AWSIoTFullAccess
         - Version: '2012-10-17'
