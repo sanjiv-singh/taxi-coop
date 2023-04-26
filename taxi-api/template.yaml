@@ -117,7 +117,7 @@ Resources:
             Path: /register_taxi
             Method: post
 
-  TCGetTaxisFunction:
+  TCTaxisFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: tc_taxis/
