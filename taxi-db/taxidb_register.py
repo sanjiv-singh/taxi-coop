@@ -47,7 +47,7 @@ def lambda_handler(event, context):
 
     #Insert data
     result = taxi_col.insert_one(taxi_data)
-    print(f"Inserted into taxi history: {result.inserted_id}")
+    print(f"Inserted into taxi collection: {result.inserted_id}")
 
     taxi_data['taxi_id'] = str(result.inserted_id)
     del taxi_data['_id']
