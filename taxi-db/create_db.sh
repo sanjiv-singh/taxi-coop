@@ -8,3 +8,5 @@ aws cloudformation create-stack \
 	--template-body file://$TEMPLATE \
 	--capabilities CAPABILITY_IAM \
 	--parameters file://$PARAMETERS
+
+sleep 5
