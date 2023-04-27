@@ -128,7 +128,10 @@ Now refresh the bowser page opened above and if everything went well, you should
 
 To clean up the cloud infrastructure, follow these steps:-
 
-1.    In the `taxi-iot` folder run the command
+1.    In the `taxi-iot` folder run the command. It deletes the thing type,
+thing group, IAM roles, custom policies, all things and all certificates
+on AWS IoT Core. Finally, it deletes local copies of certificates and
+ private keys in the `../simulation/.certs` folder.
 ```bash
     $ ./cleanup.sh
 ```
@@ -136,16 +139,15 @@ To clean up the cloud infrastructure, follow these steps:-
 2.    In the taxi-db folder, run the following commands:-
 
 ```bash
-    $ cd ../tax-db
-    $ aws lambda delete-function --function-name taxidb_lambda
-    $ aws cloudformation delete-stack --stack-name taxidb
+    $ cd ../taxi-db
+    $ ./delete.sh
 ```
 
 3.    In the `taxi-api` folder, run the following command:-
 
 ```bash
     $ cd ../taxi-api
-    $ sam delete --stack-name taxi-coop
+    $ sam delete
 ```
 
 ## Credits
