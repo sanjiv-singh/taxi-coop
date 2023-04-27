@@ -40,7 +40,10 @@ aws iot delete-thing-group \
 
 echo "Deleting IoT things..."
 for thing_name in $(aws iot list-things --query things[].thingName --output text); do
-
+	if test "$(jobs | wc -l)" -ge 11; then
+    		wait -n
+  	fi
+{
 	echo "$thing_name"
 
 	for principal in $(aws iot list-thing-principals --thing-name $thing_name  --query principals --output text); do
@@ -61,12 +64,30 @@ for thing_name in $(aws iot list-things --query things[].thingName --output text
 	rm -f ../simulation/.certs/$thing_name.pem
 	rm -f ../simulation/.certs/$thing_name.private.key
 	rm -f ../simulation/.certs/$thing_name.public.key
+} &
 done
+wait
 
 echo "Deleting IoT certificates..."
+for cert_arn in $(aws iot list-certificates --query certificates[].certificateArn --output text); do
+	if test "$(jobs | wc -l)" -ge 11; then
+    		wait -n
+  	fi
+{
+	aws iot detach-policy \
+    		--policy-name Taxi_policy \
+    		--target $cert_arn
+} &
+done
+wait
 for cert_id in $(aws iot list-certificates --query certificates[].certificateId --output text); do
+	if test "$(jobs | wc -l)" -ge 11; then
+    		wait -n
+  	fi
+{
 	aws iot update-certificate --certificate-id $cert_id --new-status INACTIVE
 	aws iot delete-certificate --certificate-id $cert_id
+} &
 done
 
 echo "Deleting IoT policy..."
