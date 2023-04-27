@@ -1,17 +1,18 @@
 #!/bin/bash
 
-# Install AWS CLI
-echo "Installing AWS CLI"
-sudo apt-get update && sudo apt-get upgrade
-sudo apt-get install awscli
-sudo apt-get install aws-sam-cli
 
 # Install Python3 and reuired python packages
 echo "Installing Python3 and required packages"
-sudo apt-get install python3
+sudo apt-get install -y python3
+sudo apt-get install -y python3-pip
+sudo apt-get install -y python3-pymongo
 sudo pip3 install --upgrade pip
-sudo pip3 install boto3 AWSIoTPythonSDK awsiotsdk pymongo
+sudo pip3 install boto3 AWSIoTPythonSDK awsiotsdk
 
+# Install AWS CLI
+echo "Installing AWS CLI"
+sudo apt-get install -y awscli
+sudo apt-get install -y aws-sam-cli
 
 # Install MongoDB
 echo "Installing MongoDB"
