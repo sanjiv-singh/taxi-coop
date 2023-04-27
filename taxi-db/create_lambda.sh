@@ -42,7 +42,7 @@ create_lambda () {
     aws lambda create-function \
         --function-name taxidb_lambda \
         --runtime python3.9 \
-        --environment "Variables={db_user=$DB_USER,db_pass=$DB_PASSWORD,db_endpoint=$end_point}" \
+        --environment "Variables={db_user=$DB_USER,db_pass=$DB_PASSWORD,db_endpoint=$end_point,south=12.8,west=77.5,north=13.5,east=78.2}" \
         --zip-file fileb://taxidb_lambda_package.zip \
         --handler taxidb_lambda.lambda_handler \
         --role $role_arn \

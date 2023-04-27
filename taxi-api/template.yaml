@@ -8,10 +8,10 @@ Description: >
 Parameters:
   SouthWest:
     Type: String
-    Default: 20.8,80.8
+    Default: 12.8,77.5
   NorthEast:
     Type: String
-    Default: 21.0,81.0
+    Default: 13.5,78.2
   DBUser:
     Type: String
     Description: Document DB User
