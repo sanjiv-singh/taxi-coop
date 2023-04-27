@@ -88,6 +88,10 @@ The setup process involves the following steps.
 ```bash
     $ cd taxi-db
 
+    $ export DB_USER=<dbuser>
+
+    $ export DB_PASSWORD=<password>
+
     $ ./create_db.sh
     
     $  ./create_lambda.sh
@@ -103,6 +107,8 @@ The setup process involves the following steps.
 
 ```bash
     $ cd ..taxi-api
+    $ export DB_USER=<dbuser>
+    $ export DB_PASSWORD=<password>
     $ ./setup_apis.sh
 ```
 
