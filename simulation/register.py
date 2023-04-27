@@ -1,6 +1,7 @@
 import requests
 import json
 import asyncio
+import random
 
 class RegistrationSimulator:
     "Manages registration of taxis through API"
@@ -11,7 +12,7 @@ class RegistrationSimulator:
     def __init__(self, end_point=""):
         self.end_point = end_point
         if not end_point:
-            self.end_point = "https://h6x05weali.execute-api.us-east-1.amazonaws.com/Prod/register_taxi/"
+            self.end_point = "https://jm5y81zn02.execute-api.us-east-1.amazonaws.com/Prod/register_taxi/"
 
 
     def create_registration(self, email, first_name, last_name, taxi_class):
@@ -32,17 +33,16 @@ class RegistrationSimulator:
         with open(f".certs/{taxi_id}.private.key", "w+") as key_file:
             key_file.write(data.get("priv_key"))
 
-if __name__ == '__main__':
+def register_async():
+    registration_sim = RegistrationSimulator()
+    data = requests.get("https://randomuser.me/api/").json()
+    email = data.get("results")[0].get("email")
+    name = data.get("results")[0].get("name")
+    taxi_class = random.choice([0, 1, 2])
+    registration = registration_sim.create_registration(email, name["first"], name["last"], taxi_class)
+    registration.register()
 
-    def register_async():
-        registration_sim = RegistrationSimulator()
-        data = requests.get("https://randomuser.me/api/").json()
-        email = data.get("results")[0].get("email")
-        name = data.get("results")[0].get("name")
-        taxi_class = "Deluxe"
-        registration = registration_sim.create_registration(email, name["first"], name["last"], taxi_class)
-        registration.register()
-
+def main():
     ntaxis = 0
     while True:
         ans = input("No of taxis to simulate: ")
@@ -52,10 +52,11 @@ if __name__ == '__main__':
         except:
             print("Invalid entry, try again!.")
 
-    print("Registering taxis")
+    print(f"Registering {ntaxis} taxis")
     tasks = []
     for i in range(ntaxis):
-        #tasks.append(asyncio.create_task(register_async()))
         register_async()
-    #asyncio.gather(*tasks)
 
+
+if __name__ == '__main__':
+    main()

@@ -25,5 +25,21 @@ if __name__ == '__main__':
     for name in os.listdir('.certs/'):
         if name.endswith('.private.key'):
             taxis.append(name[:-12])
+    ntaxis = len(taxis)
+    if ntaxis == 0:
+        print("No taxi registered. Please register taxis first.")
+        import sys; sys.exit()
+    while True:
+        ans = input("No of taxis to simulate: ")
+        try:
+            n = int(ans)
+            if ntaxis < n:
+                print("Not enough taxis registered")
+                continue
+            taxis = taxis[:n]
+            break
+        except:
+            print("Invalid entry, try again!.")
+
     asyncio.run(main(taxis))
 

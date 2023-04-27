@@ -6,6 +6,10 @@ import json
 import os
 import asyncio
 
+import boto3
+
+AWS_IOT = boto3.client('iot')
+
 from configuration import ConfigurationManager
 
 # Custom MQTT message callback
@@ -21,6 +25,9 @@ def custom_callback(client, userdata, message):
 class MQTTClient:
 
     def __init__(self):
+        self._iot_endpoint = AWS_IOT.describe_endpoint(
+                endpointType='iot:Data-ATS'
+        ).get('endpointAddress')
         self._client = self.create_client()
 
 
