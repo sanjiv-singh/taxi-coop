@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Leaflet sample</title>
+      <link rel = "stylesheet" href = "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css"/>
+      <script src = "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+   </head>
+   
+   <body>
+      <div id = "map" style = "width:900px; height:580px"></div>
+      <script>
+
+        async function getTaxis(map, L) {
+            let url = 'https://bjd4qtzu9b.execute-api.us-east-1.amazonaws.com/Prod/taxi/';
+            try {
+                let res = await fetch(url, {
+                    mode: 'cors',
+                    headers: {
+                        'Access-Control-Allow-Origin':'*'
+                    }
+                });
+                console.log(res.text());
+                const taxis = await res.json();
+                // Creating markers
+                for (i=0; i<taxis.length; i++) {
+                    const marker = L.marker(taxis[i].location.coordinates);
+
+                    // Adding marker to the map
+                    marker.addTo(map);
+                }
+         
+               }
+            catch (error) {
+                console.log(error);
+            }
+        }
+
+         // Creating map options
+         var mapOptions = {
+            center: [13.0, 77.6],
+            zoom: 11
+         }
+         // Creating a map object
+         var map = new L.map('map', mapOptions);
+         
+         // Creating a Layer object
+         var layer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+         
+         // Adding layer to the map
+         map.addLayer(layer);
+
+         getTaxis(map, L);
+         
+
+      </script>
+   </body>
+   
+</html>
