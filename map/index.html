@@ -7,33 +7,34 @@
    </head>
    
    <body>
-      <div id = "map" style = "width:900px; height:580px"></div>
+      <div id = "map" style = "width:1200px; height:800px"></div>
       <script>
 
-        async function getTaxis(map, L) {
-            let url = 'https://bjd4qtzu9b.execute-api.us-east-1.amazonaws.com/Prod/taxi/';
-            try {
-                let res = await fetch(url, {
-                    mode: 'cors',
-                    headers: {
-                        'Access-Control-Allow-Origin':'*'
-                    }
-                });
-                console.log(res.text());
-                const taxis = await res.json();
-                // Creating markers
-                for (i=0; i<taxis.length; i++) {
-                    const marker = L.marker(taxis[i].location.coordinates);
+        const url = 'https://iylf04p9ka.execute-api.us-east-1.amazonaws.com/Prod/taxi/';
 
-                    // Adding marker to the map
-                    marker.addTo(map);
-                }
-         
-               }
-            catch (error) {
-                console.log(error);
-            }
-        }
+        getTaxis = (url, map, L, layerGroup, taxiIcon) => {
+         fetch(url, { 
+           method: 'GET'
+         })
+         .then(function(response) { return response.json(); })
+         .then(function(json) {
+          layerGroup.clearLayers();
+
+           // use the json
+           json.forEach(taxi => {
+             const coords = taxi.location.coordinates;
+             const marker = L.marker([coords[1], coords[0]], {icon: taxiIcon});
+             marker.addTo(layerGroup);
+           });
+         });
+        };
+
+         // Marker Icon definition
+         var taxiIcon = L.icon({
+             iconUrl: 'taxi.png',
+             iconSize:     [30, 40], // size of the icon
+             iconAnchor:   [15, 20] // point of the icon which will correspond to marker's location
+         });
 
          // Creating map options
          var mapOptions = {
@@ -49,7 +50,13 @@
          // Adding layer to the map
          map.addLayer(layer);
 
-         getTaxis(map, L);
+         const layerGroup = L.layerGroup().addTo(map);
+
+         let id = setInterval('getTaxis(url, map, L, layerGroup, taxiIcon);', 1000); //call getTaxis every 1 seconds.
+         function stop() { // call this to stop your interval.
+         clearInterval(id);
+         }
+
          
 
       </script>
