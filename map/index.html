@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Leaflet sample</title>
+      <link rel = "stylesheet" href = "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css"/>
+      <script src = "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+   </head>
+   
+   <body>
+      <div id = "map" style = "width:1200px; height:800px"></div>
+      <script>
+
+        const url = 'https://iylf04p9ka.execute-api.us-east-1.amazonaws.com/Prod/taxi/';
+
+        getTaxis = (url, map, L, layerGroup, taxiIcon) => {
+         fetch(url, { 
+           method: 'GET'
+         })
+         .then(function(response) { return response.json(); })
+         .then(function(json) {
+          layerGroup.clearLayers();
+
+           // use the json
+           json.forEach(taxi => {
+             const coords = taxi.location.coordinates;
+             const marker = L.marker([coords[1], coords[0]], {icon: taxiIcon});
+             marker.addTo(layerGroup);
+           });
+         });
+        };
+
+         // Marker Icon definition
+         var taxiIcon = L.icon({
+             iconUrl: 'taxi.png',
+             iconSize:     [30, 40], // size of the icon
+             iconAnchor:   [15, 20] // point of the icon which will correspond to marker's location
+         });
+
+         // Creating map options
+         var mapOptions = {
+            center: [13.0, 77.6],
+            zoom: 11
+         }
+         // Creating a map object
+         var map = new L.map('map', mapOptions);
+         
+         // Creating a Layer object
+         var layer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+         
+         // Adding layer to the map
+         map.addLayer(layer);
+
+         const layerGroup = L.layerGroup().addTo(map);
+
+         let id = setInterval('getTaxis(url, map, L, layerGroup, taxiIcon);', 1000); //call getTaxis every 1 seconds.
+         function stop() { // call this to stop your interval.
+         clearInterval(id);
+         }
+
+         
+
+      </script>
+   </body>
+   
+</html>
