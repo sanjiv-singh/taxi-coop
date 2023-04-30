@@ -20,6 +20,15 @@ taxi_collection = db['taxi']
 
 def handle_get(event):
     print(event)
+    query_string = event.get("queryStringParameters")
+    if query_string:
+        history = query_string.get("history")
+        if history:
+            taxi_collection = db['taxi_history']
+        else:
+            taxi_collection = db['taxi']
+    else:
+        taxi_collection = db['taxi']
     if event.get('resource') == '/taxi/{id}':
         # Get single record by _id
         id = event['pathParameters']['id']
