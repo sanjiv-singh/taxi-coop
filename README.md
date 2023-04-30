@@ -58,12 +58,14 @@ The entire backend API is designed using serverless architecture for cost-effect
 
 * `tc_geocoder` - Uses Google Maps API for conversion of location address to location coordinates (latitude/longitude). This enables the client to specify the destination as address rather than lat long coordinates.
 * `tc_directions` - Uses Google Maps API to find driving directions from origin to destination. Returns an array of steps with lat long coordinates. These coordinates are to be used by the taxi client for navigating from origin to destination.
-* `tc_change_status` - Updates status of taxi to `AVL`, `NAVL`, `BOOKED` or `TRIP`.
-* `tc_request_ride` - Enables the user to request a ride from his/her current location to a destination address or lat long location.
-* `tc_accept_ride` - Enables a taxi to respond to a ride request.
-* `tc_book` - Enables user to book one of the taxis that have accepted the ride request. Changes the status of taxi from `AVL` to `BOOKED` by calling `tc_change_status` and triggers a drive from current location to user's location.
-* `tc_trip_start` - Used by taxi to indicate commencement of trip. Calls `tc_chnage_status` to change status from `BOOKED` to `TRIP`. Triggers a drive from current location to destination.
-* `tc_trip_end` - Called by taxi after reaching destination. Triggers `tc_change_status` to 'AVL'. Also updates user's location to current location.
+* `tc_change_status` - Updates status of taxi to `AVL`, `NAVL`, `BOOKED` or `TRIP`. (To be implemented)
+* `tc_request_ride` - Enables the user to request a ride from his/her current location to a destination address or lat long location. (To be implemented)
+* `tc_accept_ride` - Enables a taxi to respond to a ride request. (To be implemented)
+* `tc_book` - Enables user to book one of the taxis that have accepted the ride request. Changes the status of taxi from `AVL` to `BOOKED` by calling `tc_change_status` and triggers a drive from current location to user's location. (To be implemented)
+* `tc_trip_start` - Used by taxi to indicate commencement of trip. Calls `tc_chnage_status` to change status from `BOOKED` to `TRIP`. Triggers a drive from current location to destination. (To be implemented)
+* `tc_trip_end` - Called by taxi after reaching destination. Triggers `tc_change_status` to 'AVL'. Also updates user's location to current location. (To be implemented)
+
+A script for building and deploying the APIs is available in the `taxi-api` folder (viz. `taxi-api/setup_apis.sh`).
 
 ## Setup
 
