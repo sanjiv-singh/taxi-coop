@@ -83,27 +83,24 @@ The setup process involves the following steps.
     $ pip3 install aws-sam-cli
 ```
 
-4.   Change directory to `taxi-db` and run the following commands:-
+4.   First we need to setup Amazon DocumentDB along with the lamda functions responsible for ingecting data into it. Change directory to `taxi-db` and run the following commands:-
 
 ```bash
     $ cd taxi-db
-
     $ export DB_USER=<dbuser>
-
     $ export DB_PASSWORD=<password>
-
     $ ./create_db.sh
-    
     $  ./create_lambda.sh
 ```
-5.    Change directory to `taxi-iot` and run these commands:-
+
+5.    The next step is to setup the iot infrastructure (i.e. thing type and group along with requisite role and permissions). Change directory to `taxi-iot` and run these commands:-
+
 
 ```bash
     $ cd ../taxi-iot
-
     $ ./setup.sh
 ```
-6.    Change directory to `taxi-api` folder and run this command to deploy the APIs and Lambda functions:-
+6.    Now we build and deploy the APIs along with their lambda functions using SAM CLI. Change directory to `taxi-api` folder and run this commands:-
 
 ```bash
     $ cd ..taxi-api
@@ -114,15 +111,25 @@ The setup process involves the following steps.
 
 The API end point for TCGetTaxis should be in the output. Copy the URL and open it in browser.
 
-7.    Change directory back to `taxi-iot` and start the taxi simulator
+7.    Now we shall start the simulator. It consists of two steps, viz. registration of taxis as IoT things and publishing of MQTT messages to IoT Core with updated location information. Change directory to `simulation` and start the taxi simulator
 
 ```bash
-    $ cd ../taxi-iot
+    $ cd ../simulation
+    $ python register.py
     $ python main.py
 ```
 
 Now refresh the bowser page opened above and if everything went well, you should see taxi data in JSON format in your browser.
 
+8.    A simple leaflet map frontend has been created for visualisation. Go to the map folder and edit the `index.html` file to update the url in line 13 to point to the API url copied above. Put this on a web server or run a local web server to access this file in a browser. You may use the python http module to do so.
+
+```bash
+    $ cd ../map
+    $ vi index.html (or any editor)
+    $ python -m http.server
+```
+
+9.    Now point your browser to `http://localhost:8000/index.html`. The taxis should be visible as per their location.
 
 ## Cleanup
 
