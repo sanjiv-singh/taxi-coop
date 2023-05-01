@@ -21,8 +21,13 @@ class RegistrationSimulator:
         self.end_point = end_point
         if not end_point:
             resp = AWS_API_GATEWAY.get_rest_apis()
-            api_id = resp.get("items")[0]["id"]
-            self.end_point = f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/register_taxi/"
+            try:
+                api_id = resp.get("items")[0]["id"]
+                self.end_point = f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/register_taxi/"
+            except:
+                print("Error: API Gateway not found")
+                print("cannot proceed with registration")
+                import sys; sys.exit(1)
 
 
     def create_registration(self, email, first_name, last_name, taxi_class):
