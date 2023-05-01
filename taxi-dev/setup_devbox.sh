@@ -47,7 +47,7 @@ prepare_instance () {
     scp -i capstone-dev.pem -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null mongo.sh ubuntu@$ip_address:.
     scp -i capstone-dev.pem -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null db_setup.js ubuntu@$ip_address:.
     scp -i capstone-dev.pem -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null rds-combined-ca-bundle.pem ubuntu@$ip_address:.
-    ssh -i capstone-dev.pem -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null ubuntu@$ip_address "./prepare.sh"
+    #ssh -i capstone-dev.pem -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null ubuntu@$ip_address "./prepare.sh"
 }
 
 echo "Creating key pair capstone-dev"
@@ -60,7 +60,7 @@ sleep 30
 echo "Preparing ec2 instance"
 prepare_instance
 echo "Done"
-echo "Now login to the instance and run ./mongo.sh"
+echo "Now login to the instance and run ./prepare.sh followed by ./mongo.sh"
 echo "e.g. ssh -i capstone-dev.pem ubuntu@$ip_address"
 echo "./mongo.sh"
 

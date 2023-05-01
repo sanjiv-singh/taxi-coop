@@ -12,7 +12,7 @@ sudo pip3 install boto3 AWSIoTPythonSDK awsiotsdk
 # Install AWS CLI
 echo "Installing AWS CLI"
 sudo apt-get install -y awscli
-sudo apt-get install -y aws-sam-cli
+sudo pip3 install aws-sam-cli
 
 # Install MongoDB
 echo "Installing MongoDB"
