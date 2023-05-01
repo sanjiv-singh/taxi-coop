@@ -14,7 +14,7 @@ The app backend has three  main components as follows:-
 ### Frontend
 The backend has been designed to support client front ends such as web apps or mobile apps that are completely independent of the backend infrastructure. The taxi clients interact with the backend using a pubsub message broker (MQTT) and the user clients interact using the web APIs.
 
-As the focus of the project lies in backend design and implementation, the frontend functionality are simulated using standalone python applications.
+As the focus of the project lies in backend design and implementation, the frontend functionalities are simulated using standalone python applications.
 
 ## Infrastructure
 
@@ -113,7 +113,17 @@ The setup process involves the following steps.
 
 The API end point for TCGetTaxis should be in the output. Copy the URL and open it in browser.
 
-7.    Now we shall start the simulator. It consists of two steps, viz. registration of taxis as IoT things and publishing of MQTT messages to IoT Core with updated location information. Change directory to `simulation` and start the taxi simulator
+7.    Now we need to launch an EC2 instance in the same VPC as DocumentDB. We will use this to connect to the DB using mongodb client and undertake some DB operations such as creating indexes.
+
+```bash
+    $ cd ../taxi-dev
+    $ ./setup.sh
+    $ ssh -i capstone-dev.pem ubuntu@<ip address>
+    (inside the ec2 instance)
+    $ ./mongo.sh
+```
+
+8.    Now we shall start the simulator. It consists of two steps, viz. registration of taxis as IoT things and publishing of MQTT messages to IoT Core with updated location information. Change directory to `simulation` and start the taxi simulator
 
 ```bash
     $ cd ../simulation
@@ -123,7 +133,7 @@ The API end point for TCGetTaxis should be in the output. Copy the URL and open 
 
 Now refresh the bowser page opened above and if everything went well, you should see taxi data in JSON format in your browser.
 
-8.    A simple leaflet map frontend has been created for visualisation. Go to the map folder and edit the `index.html` file to update the url in line 13 to point to the API url copied above. Put this on a web server or run a local web server to access this file in a browser. You may use the python http module to do so.
+9.    A simple leaflet map frontend has been created for visualisation. Go to the map folder and edit the `index.html` file to update the url in line 13 to point to the API url copied above. Put this on a web server or run a local web server to access this file in a browser. You may use the python http module to do so.
 
 ```bash
     $ cd ../map
@@ -131,7 +141,7 @@ Now refresh the bowser page opened above and if everything went well, you should
     $ python -m http.server
 ```
 
-9.    Now point your browser to `http://localhost:8000/index.html`. The taxis should be visible as per their location.
+10.    Now point your browser to `http://localhost:8000/index.html`. The taxis should be visible as per their location.
 
 ## Cleanup
 
@@ -157,6 +167,13 @@ on AWS IoT Core. Finally, it deletes local copies of certificates and
 ```bash
     $ cd ../taxi-api
     $ sam delete
+```
+
+4.    In the `taxi-dev` folder, run the following command:-
+
+```bash
+    $ cd ../taxi-dev
+    $ ./cleanup.sh
 ```
 
 ## Credits
