@@ -117,7 +117,7 @@ The API end point for TCGetTaxis should be in the output. Copy the URL and open 
 
 ```bash
     $ cd ../taxi-dev
-    $ ./setup.sh
+    $ ./setup_devbox.sh
     $ ssh -i capstone-dev.pem ubuntu@<ip address>
     (inside the ec2 instance)
     $ ./mongo.sh
