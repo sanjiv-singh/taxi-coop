@@ -4,13 +4,39 @@
       <title>Leaflet sample</title>
       <link rel = "stylesheet" href = "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css"/>
       <script src = "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+      <script src = "rotatedMarker.js"></script>
    </head>
    
    <body>
       <div id = "map" style = "width:1200px; height:800px"></div>
       <script>
+	// Converts from degrees to radians.
+        function toRadians(degrees) {
+          return degrees * Math.PI / 180;
+        };
+ 
+        // Converts from radians to degrees.
+        function toDegrees(radians) {
+          return radians * 180 / Math.PI;
+        }
 
-        const url = 'https://iylf04p9ka.execute-api.us-east-1.amazonaws.com/Prod/taxi/';
+
+        function bearing(startLat, startLng, destLat, destLng){
+          startLat = toRadians(startLat);
+          startLng = toRadians(startLng);
+          destLat = toRadians(destLat);
+          destLng = toRadians(destLng);
+
+          y = Math.sin(destLng - startLng) * Math.cos(destLat);
+          x = Math.cos(startLat) * Math.sin(destLat) -
+                    Math.sin(startLat) * Math.cos(destLat) * Math.cos(destLng - startLng);
+          brng = Math.atan2(y, x);
+          brng = toDegrees(brng);
+          return (brng + 360) % 360;
+        }
+
+        const url = 'https://2o91lyf8y0.execute-api.us-east-1.amazonaws.com/Prod/taxi/';
+	let taxis = [];
 
         getTaxis = (url, map, L, layerGroup, taxiIcon) => {
          fetch(url, { 
@@ -18,13 +44,24 @@
          })
          .then(function(response) { return response.json(); })
          .then(function(json) {
-          layerGroup.clearLayers();
 
            // use the json
            json.forEach(taxi => {
              const coords = taxi.location.coordinates;
-             const marker = L.marker([coords[1], coords[0]], {icon: taxiIcon});
-             marker.addTo(layerGroup);
+	     let taxi_obj = taxis.find(t => t._id === taxi._id);
+	     if (taxi_obj === undefined) {
+	       taxi_obj = {...taxi, lat: coords[1], lng: coords[0], angle: 0};
+	       taxis.push(taxi_obj);
+	     } else {
+		taxi_obj.angle = bearing(taxi_obj.lat, taxi_obj.lng, coords[1], coords[0]);
+	     }
+           });
+	   // Clear all markers and add new markers based on the updated taxi list.
+           layerGroup.clearLayers();
+	   taxis.forEach(taxi_obj => {
+	     const marker = L.rotatedMarker([taxi_obj.lat, taxi_obj.lng], {icon: taxiIcon});
+	     marker.setRotationAngle(taxi_obj.angle);
+	     marker.addTo(layerGroup);
            });
          });
         };
@@ -52,7 +89,7 @@
 
          const layerGroup = L.layerGroup().addTo(map);
 
-         let id = setInterval('getTaxis(url, map, L, layerGroup, taxiIcon);', 1000); //call getTaxis every 1 seconds.
+         let id = setInterval('getTaxis(url, map, L, layerGroup, taxiIcon);', 5000); //call getTaxis every 5 seconds.
          function stop() { // call this to stop your interval.
          clearInterval(id);
          }
