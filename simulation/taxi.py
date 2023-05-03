@@ -9,6 +9,9 @@ import asyncio
 import datetime
 from bson.objectid import ObjectId
 
+DIST_FACTOR = 111139  # meters per degree of lat/long
+DELAY = 2
+
 
 class TaxiClass(int, Enum):
     DELUXE = 0
@@ -65,12 +68,49 @@ class Taxi(MQTTClient):
     def _on_message(self, client, userdata, msg):
         print(f"Message received: {msg.payload}")
     
-    async def _drive(self):
+    async def _keep_doing_trips(self):
         while True:
+            print("New Trip")
+            await self.do_trip()
+
+    async def do_trip(self,
+            origin=create_random_location((12.8, 77.5), (13.5, 78.2)),
+            destination=create_random_location((12.8, 77.5), (13.5, 78.2))):
+        print(f"Doing trip from {origin} to {destination}")
+        # Set status to booked
+        self._status = TaxiStatus.BOOKED
+        # Drive to origin
+        print("Driving to origin")
+        await self._drive((self._lat, self._lng), origin, 20)
+        # Set status to trip
+        self._status = TaxiStatus.TRIP
+        # Drive to destination
+        print("Driving to destination")
+        await self._drive(origin, destination, 20)
+        # Set status to available
+        self._status = TaxiStatus.AVL
+
+    async def _drive(self, origin, destination, speed):
+        # Convert difference in northings and eastings to meters
+        #x, y = (destination[1] - origin[1])*DIST_FACTOR, (destination[0] - origin[0])*DIST_FACTOR
+        # Calculate distance between origin and destination
+        lat_dist = (destination[0] - origin[0])
+        lng_dist = (destination[1] - origin[1])
+        distance_in_degrees = (lat_dist**2 + lng_dist**2)**0.5
+        distance = distance_in_degrees * DIST_FACTOR
+        # Calculate time taken to travel the distance
+        time = distance/speed
+        print(f"Distance: {distance}m, Time: {time}s")
+        # Calculate the no of steps
+        steps = int(time/DELAY) + 1
+        # Pre calculate the array of lats and longs based on steps
+        lats = [origin[0] + (lat_dist/steps)*i for i in range(steps)]
+        lngs = [origin[1] + (lng_dist/steps)*i for i in range(steps)]
+        for i in range(steps):
             try:
-                await asyncio.sleep(random.uniform(0.2, 2.0))
-                self._lat += random.uniform(-0.1, 0.1)
-                self._lng += random.uniform(-0.1, 0.1)
+                await asyncio.sleep(DELAY)
+                self._lat = lats[i]
+                self._lng = lngs[i]
             except KeyboardInterrupt:
                 break
 
