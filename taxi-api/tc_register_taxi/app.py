@@ -52,16 +52,16 @@ def register_taxi_in_iot(taxi_id):
     return cert_arn, cert_pem, key_pair
 
 def lambda_handler(event, context):   
-    body = json.loads(json.dumps(event))  
+    body = json.loads(event.get("body"))
     taxi_data = {
             "email": body.get("email"),
             "first_name": body.get("first_name"),
             "last_name": body.get("last_name"),
             "taxi_class": body.get("taxi_class", "Deluxe")
-    }   
+    }
     response = register_taxi_in_db(taxi_data)
     payload = response["Payload"].read()   
-    taxi_data = json.loads(json.dumps(payload.decode('utf-8')).get("body")) 
+    taxi_data = json.loads(json.loads(payload.decode('utf-8')).get("body"))
     cert_arn, cert_pem, key_pair = register_taxi_in_iot(taxi_data["taxi_id"])
 
     return {
