@@ -4,9 +4,11 @@
 # Install Python3 and reuired python packages
 echo "Installing Python3 and required packages"
 sudo apt-get install -y python3
+sudo apt-get remove -y python-pip
+sudo apt-get install -y zip
 sudo apt-get install -y python3-pip
-sudo apt-get install -y python3-pymongo
 sudo pip3 install --upgrade pip
+sudo apt-get install -y python3-pymongo
 sudo pip3 install boto3 AWSIoTPythonSDK awsiotsdk
 
 # Install AWS CLI
