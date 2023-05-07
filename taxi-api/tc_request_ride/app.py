@@ -20,37 +20,34 @@ print("Connected to Amazon DocumentDB")
 taxi_collection = db['taxi']
 
 def lambda_handler(event, context):
-    print(event)
 
-
+    near_taxi_collection = []
     body = json.loads(event["body"])
     taxi_class = body["taxi_class"]
-    origin = body["origin"]
+    origin = body["origin"] 
     destination = body["destination"]
+    # UserID  - Input --> Check the User is present or not? - 400 series error
 
     # Contruct a mongodb location query and get the nearest taxi
     print('######################## CUSTOMER LOCATION ########################')
-    start_location = origin['location']
-    pprint.pprint(start_location)
-
-    # Getting all taxis within a certain distance range from a customer
-    print('######################## ALL TAXIS WITHIN 1 KILOMETER ########################')
-
-    range_query = {'location': SON([("$near", start_location), ("$maxDistance", 1000)])}
-    for doc in taxi_collection.find(range_query):
-        pprint.pprint(doc)
+    start_location =  { '$geometry': { 
+                type: "Point", 'coordinates': [origin] 
+            }}
+    pprint.pprint(start_location)   
 
     # Getting the nearest taxis to a customer
     print('######################## THE 2 NEAREST TAXIS ########################')
+    nearest_query = {'location': {"$near":  start_location}}
 
-    nearest_query = {'location': {"$near": start_location}}
+
     for doc in taxi_collection.find(nearest_query).limit(2):
         pprint.pprint(doc)
+        near_taxi_collection.__add__(doc)
 
 
     return {
         "statusCode": 200,
         "body": json.dumps({
-            "nearest_taxis": doc,
+            "nearest_taxis": near_taxi_collection,
         }),
     }
