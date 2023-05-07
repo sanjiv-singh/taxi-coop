@@ -24,14 +24,16 @@ def lambda_handler(event, context):
     near_taxi_collection = []
     body = json.loads(event["body"])
     taxi_class = body["taxi_class"]
-    origin = body["origin"] 
-    destination = body["destination"]
+    origin = [float(coord) for coord in body["origin"].split(',')]
+    origin.reverse()
+    destination = [float(coord) for coord in body["destination"].split(',')]
+    destination.reverse()
     # UserID  - Input --> Check the User is present or not? - 400 series error
 
     # Contruct a mongodb location query and get the nearest taxi
     print('######################## CUSTOMER LOCATION ########################')
     start_location =  { '$geometry': { 
-                type: "Point", 'coordinates': [origin] 
+                "type": "Point", 'coordinates': origin 
             }}
     pprint.pprint(start_location)   
 
@@ -41,8 +43,10 @@ def lambda_handler(event, context):
 
 
     for doc in taxi_collection.find(nearest_query).limit(2):
+        doc['taxi_id'] = str(doc['_id'])
+        del doc["_id"]
         pprint.pprint(doc)
-        near_taxi_collection.__add__(doc)
+        near_taxi_collection.append(doc)
 
 
     return {
