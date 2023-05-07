@@ -24,6 +24,7 @@ sam build
 cp ../taxi-db/package/rds-combined-ca-bundle.pem .aws-sam/build/TCTaxisFunction/
 cp ../taxi-db/package/rds-combined-ca-bundle.pem .aws-sam/build/TCRequestRideFunction/
 cp ../taxi-db/package/rds-combined-ca-bundle.pem .aws-sam/build/TCUserFunction/
+cp ../taxi-db/package/rds-combined-ca-bundle.pem .aws-sam/build/TCBookRideFunction/
 
 # Query AWS to get the required parameters for deployment
 

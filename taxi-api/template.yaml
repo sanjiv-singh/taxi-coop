@@ -183,6 +183,27 @@ Resources:
           Properties:
             Path: /request-ride
             Method: post
+  TCBookRideFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: tc_book_ride/
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:       
+          iot_policy: !Ref IoTPolicy
+          iot_thing_type: !Ref IoTThingType
+          iot_thing_group: !Ref IoTThingGroup
+      Policies:
+        - AWSIoTFullAccess   
+      Events:
+        TCTaxis:
+          Type: Api
+          Properties:
+            Path: /book-ride
+            Method: post
   TCUserFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -259,6 +280,16 @@ Outputs:
   TCRegisterTaxiFunctionIamRole:
     Description: "Implicit IAM Role created for Get Taxis function"
     Value: !GetAtt TCTaxisFunctionRole.Arn
+
+  TCBookRideFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for register Taxis function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/book-ride/"
+  TCBookRideFunction:
+    Description: "Book Ride Lambda Function ARN"
+    Value: !GetAtt TCBookRideFunction.Arn
+  TCBookRideFunctionIamRole:
+    Description: "Implicit IAM Role created for book ride Taxis function"
+    Value: !GetAtt TCBookRideFunctionRole.Arn
 
   TCTaxisApi:
     Description: "API Gateway endpoint URL for Prod stage for Get Taxis function"
