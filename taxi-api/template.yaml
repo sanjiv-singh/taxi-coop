@@ -114,7 +114,7 @@ Resources:
         TCDirections:
           Type: Api
           Properties:
-            Path: /register_taxi
+            Path: /taxis
             Method: post
 
   TCTaxisFunction:
@@ -137,27 +137,22 @@ Resources:
         TCGetTaxis:
           Type: Api
           Properties:
-            Path: /taxi
+            Path: /taxis
             Method: get
         TCGetTaxi:
           Type: Api
           Properties:
-            Path: /taxi/{id}
+            Path: /taxis/{id}
             Method: get
-        TCPostTaxi:
-          Type: Api
-          Properties:
-            Path: /taxi/{id}
-            Method: post
           TCDeleteTaxi:
             Type: Api
             Properties:
-              Path: /taxi/{id}
+              Path: /taxis/{id}
               Method: delete
           TCPatchUsers:
             Type: Api
             Properties:
-              Path: /taxi/{id}
+              Path: /taxis/{id}
               Method: patch
 
 
@@ -270,16 +265,6 @@ Outputs:
   TCDirectionsFunctionIamRole:
     Description: "Implicit IAM Role created for Directions function"
     Value: !GetAtt TCDirectionsFunctionRole.Arn
-
-  TCRegisterTaxiFunctionApi:
-    Description: "API Gateway endpoint URL for Prod stage for register Taxis function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/register_taxi/"
-  TCRegisterTaxiFunction:
-    Description: "Register Taxis Lambda Function ARN"
-    Value: !GetAtt TCRegisterTaxiFunction.Arn
-  TCRegisterTaxiFunctionIamRole:
-    Description: "Implicit IAM Role created for Get Taxis function"
-    Value: !GetAtt TCTaxisFunctionRole.Arn
 
   TCBookRideFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for register Taxis function"
