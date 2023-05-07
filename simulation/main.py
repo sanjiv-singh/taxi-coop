@@ -16,7 +16,7 @@ async def main(taxis):
         taxi.connect()
         taxi.subscribe()
         tasks.append(asyncio.create_task(taxi.main_loop(PUBLISH_INTERVAL)))
-        tasks.append(asyncio.create_task(taxi._keep_doing_trips()))
+        tasks.append(asyncio.create_task(taxi.taxi_loop()))
     await asyncio.gather(*tasks)
 
 if __name__ == '__main__':

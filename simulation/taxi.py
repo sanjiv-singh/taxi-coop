@@ -3,8 +3,8 @@ from mqtt import MQTTClient
 from configuration import ConfigurationManager
 
 from enum import Enum
-from uuid import uuid4
 import random
+import json
 import asyncio
 import datetime
 from bson.objectid import ObjectId
@@ -28,6 +28,13 @@ def create_random_location(south_west, north_east):
     lat = random.uniform(south_west[0], north_east[0])
     lng = random.uniform(south_west[1], north_east[1])
     return [lat, lng]
+
+def clean_data(data):
+    if 'origin' in data:
+        data['origin'] = [float(x) for x in data['origin'].split(',')]
+    if 'destination' in data:
+        data['destination'] = [float(x) for x in data['destination'].split(',')]
+    return data
 
 class Taxi(MQTTClient):
 
@@ -54,7 +61,7 @@ class Taxi(MQTTClient):
         self._disconnect()
     
     def subscribe(self):
-        self._subscribe(f'{self._topic}/{self._taxi_id}', callback=self._on_message)
+        self._subscribe(f'{self._topic}/{self._taxi_id}/+', callback=self._on_message)
     
     async def publish(self):
         data = {}
@@ -66,29 +73,34 @@ class Taxi(MQTTClient):
         self._publish_data(self._topic, data)
 
     def _on_message(self, client, userdata, msg):
-        print(f"Message received: {msg.payload}")
-    
-    async def _keep_doing_trips(self):
-        while True:
-            print("New Trip")
-            await self.do_trip()
+        data = clean_data(json.loads(msg.payload))
+        if msg.topic == f'{self._topic}/{self._taxi_id}/book':
+            self._status = TaxiStatus.BOOKED
+            print(f"Taxi {self._taxi_id} booked for user {data['user_id']}")
+        print(f"Message received: {data}")
+        for key, value in data.items():
+            setattr(self, f'_{key}', value)
 
-    async def do_trip(self,
-            origin=create_random_location((12.8, 77.5), (13.5, 78.2)),
-            destination=create_random_location((12.8, 77.5), (13.5, 78.2))):
-        print(f"Doing trip from {origin} to {destination}")
-        # Set status to booked
-        self._status = TaxiStatus.BOOKED
-        # Drive to origin
-        print("Driving to origin")
-        await self._drive((self._lat, self._lng), origin, 20)
-        # Set status to trip
-        self._status = TaxiStatus.TRIP
-        # Drive to destination
-        print("Driving to destination")
-        await self._drive(origin, destination, 20)
-        # Set status to available
-        self._status = TaxiStatus.AVL
+
+    async def taxi_loop(self):
+        """Act based on the status of the taxi"""
+
+        while True:
+
+            if self._status == TaxiStatus.BOOKED:
+                print(f"taxi booked, going to origin {self._origin}")
+                await self._drive((self._lat, self._lng), self._origin, 30)
+                self._status = TaxiStatus.TRIP
+            elif self._status == TaxiStatus.AVL:
+                await asyncio.sleep(DELAY)
+                #await self._drive((self._lat, self._lng), create_random_location((12.8, 77.5), (13.5, 78.2)), 10)
+            elif self._status == TaxiStatus.TRIP:
+                print(f"On trip, going to destination {self._destination}")
+                await self._drive((self._lat, self._lng), self._destination, 30)
+                self._status = TaxiStatus.AVL
+            else:
+                await asyncio.sleep(DELAY)
+
 
     async def _drive(self, origin, destination, speed):
         # Convert difference in northings and eastings to meters
@@ -103,9 +115,11 @@ class Taxi(MQTTClient):
         print(f"Distance: {distance}m, Time: {time}s")
         # Calculate the no of steps
         steps = int(time/DELAY) + 1
+        print(f"No of steps: {steps}")
         # Pre calculate the array of lats and longs based on steps
         lats = [origin[0] + (lat_dist/steps)*i for i in range(steps)]
         lngs = [origin[1] + (lng_dist/steps)*i for i in range(steps)]
+        #print(f"Lat longs: {[(lat, lng) for lat, lng in zip(lats,lngs)]}")
         for i in range(steps):
             try:
                 await asyncio.sleep(DELAY)
