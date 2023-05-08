@@ -3,7 +3,7 @@ import asyncio
 from register import RegistrationSimulator
 from taxi_system import TaxiFactory
 
-PUBLISH_INTERVAL = 2
+PUBLISH_INTERVAL = 10
 
 
 async def main(taxis):
