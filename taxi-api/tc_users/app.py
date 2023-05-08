@@ -19,6 +19,14 @@ db = client.taxidb
 print("Connected to Amazon DocumentDB")
 user_collection = db['user']
 
+def report_error(message):
+    return {
+        "statusCode": 400,
+        "body": json.dumps({
+            "message": message,
+        }),
+    }
+
 def handle_get(event):
     print(event)
     if event.get('resource') == '/user/{id}':
@@ -52,18 +60,21 @@ def handle_post(event):
     print(event)
     print('user lamda handler is called.')
     body = json.loads(event["body"])
-    first_name = body["first_name"]
-    last_name = body["last_name"]
-    email = body["email"]  
-    pprint.pprint(first_name)
-    pprint.pprint(last_name) 
+    email = body.get('email')
+    if not email:
+        report_error("Email is required")
+    pprint.pprint(body)
 
    #Insert data
-    result = user_collection.insert_one(body)  
+    try:
+        result = user_collection.insert_one(body)  
+        user_id = str(result.inserted_id)
+    except Exception as e:
+        return report_error(str(e))
 
     return {
         "statusCode": 200,
-        "body": json.dumps(result)      
+        "body": json.dumps({"user_id": user_id})
     }
     
 def handle_delete(event):
