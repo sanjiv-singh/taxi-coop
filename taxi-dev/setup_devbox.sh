@@ -29,6 +29,7 @@ create_ec2_instance () {
     done
     echo "Will be using subnet $db_subnet in availability zone us-east-1a"
     instance_id=$(aws ec2 run-instances --image-id $AMI --instance-type t2.micro --key-name capstone-dev --subnet-id $db_subnet --query 'Instances[*].[InstanceId]' --output text)
+    aws ec2 authorize-security-group-ingress --group-id $db_sg --protocol tcp --port 22 --cidr 0.0.0.0/0
 }
 
 prepare_instance () {
