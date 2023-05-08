@@ -36,6 +36,7 @@ class MQTTClient:
             messageJson = json.dumps(data)
             self._client.publish(topic, messageJson, 1)
             #print('Published topic %s: %s\n' % (self._topic, messageJson))
+            print('.', end='', flush=True)
 
         except publishTimeoutException:
             print("Unstable connection detected. Wait for {} seconds. No data is pushed on IoT core from {} to {}.".format(

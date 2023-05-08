@@ -76,8 +76,8 @@ class Taxi(MQTTClient):
         data = clean_data(json.loads(msg.payload))
         if msg.topic == f'{self._topic}/{self._taxi_id}/book':
             self._status = TaxiStatus.BOOKED
-            print(f"Taxi {self._taxi_id} booked for user {data['user_id']}")
-        print(f"Message received: {data}")
+            print(f"\nTaxi {self._taxi_id} booked for user {data['user_id']}")
+        print(f"M\nessage received: {data}")
         for key, value in data.items():
             setattr(self, f'_{key}', value)
 
@@ -88,14 +88,14 @@ class Taxi(MQTTClient):
         while True:
 
             if self._status == TaxiStatus.BOOKED:
-                print(f"taxi booked, going to origin {self._origin}")
+                print(f"\nTaxi booked, going to origin {self._origin}")
                 await self._drive((self._lat, self._lng), self._origin, 30)
                 self._status = TaxiStatus.TRIP
             elif self._status == TaxiStatus.AVL:
                 await asyncio.sleep(DELAY)
                 #await self._drive((self._lat, self._lng), create_random_location((12.8, 77.5), (13.5, 78.2)), 10)
             elif self._status == TaxiStatus.TRIP:
-                print(f"On trip, going to destination {self._destination}")
+                print(f"\nOn trip, going to destination {self._destination}")
                 await self._drive((self._lat, self._lng), self._destination, 30)
                 self._status = TaxiStatus.AVL
             else:
@@ -112,7 +112,7 @@ class Taxi(MQTTClient):
         distance = distance_in_degrees * DIST_FACTOR
         # Calculate time taken to travel the distance
         time = distance/speed
-        print(f"Distance: {distance}m, Time: {time}s")
+        print(f"\nDistance: {distance}m, Time: {time}s")
         # Calculate the no of steps
         steps = int(time/DELAY) + 1
         print(f"No of steps: {steps}")
