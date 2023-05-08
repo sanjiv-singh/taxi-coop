@@ -1,0 +1,92 @@
+[
+  {
+    "email": "edouard.mathieu@example.com",
+    "first_name": "Edouard",
+    "last_name": "Mathieu",
+    "taxi_class": 1
+  },
+  {
+    "email": "jackson.ford@example.com",
+    "first_name": "Jackson",
+    "last_name": "Ford",
+    "taxi_class": 0
+  },
+  {
+    "email": "roland.moore@example.com",
+    "first_name": "Roland",
+    "last_name": "Moore",
+    "taxi_class": 0
+  },
+  {
+    "email": "tihomir.doronchenko@example.com",
+    "first_name": "Tihomir",
+    "last_name": "Doronchenko",
+    "taxi_class": 2
+  },
+  {
+    "email": "barb.bryant@example.com",
+    "first_name": "Barb",
+    "last_name": "Bryant",
+    "taxi_class": 1
+  },
+  {
+    "email": "florence.claire@example.com",
+    "first_name": "Florence",
+    "last_name": "Claire",
+    "taxi_class": 1
+  },
+  {
+    "email": "tiago.durand@example.com",
+    "first_name": "Tiago",
+    "last_name": "Durand",
+    "taxi_class": 2
+  },
+  {
+    "email": "prmys.khwty@example.com",
+    "first_name": "پارمیس",
+    "last_name": "کوتی",
+    "taxi_class": 2
+  },
+  {
+    "email": "naksh.jain@example.com",
+    "first_name": "Naksh",
+    "last_name": "Jain",
+    "taxi_class": 2
+  },
+  {
+    "email": "severiano.nunes@example.com",
+    "first_name": "Severiano",
+    "last_name": "Nunes",
+    "taxi_class": 0
+  },
+  {
+    "email": "tyn.khmrw@example.com",
+    "first_name": "تینا",
+    "last_name": "کامروا",
+    "taxi_class": 2
+  },
+  {
+    "email": "alex.francois@example.com",
+    "first_name": "Alex",
+    "last_name": "Francois",
+    "taxi_class": 0
+  },
+  {
+    "email": "maya.morin@example.com",
+    "first_name": "Maya",
+    "last_name": "Morin",
+    "taxi_class": 1
+  },
+  {
+    "email": "marion.pena@example.com",
+    "first_name": "Marion",
+    "last_name": "Pena",
+    "taxi_class": 1
+  },
+  {
+    "email": "omaira.carlier@example.com",
+    "first_name": "Omaira",
+    "last_name": "Carlier",
+    "taxi_class": 2
+  }
+]
