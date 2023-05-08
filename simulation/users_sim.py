@@ -10,13 +10,14 @@ def get_api_endpoints():
     try:
         api_id = resp.get("items")[0]["id"]
         return f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/users/", \
-            f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/request-ride"
+            f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/request-ride", \
+            f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/book-ride"
     except:
         print("Error: API Gateway not found")
         print("cannot proceed further")
         import sys; sys.exit(1)
 
-USERS_END_POINT, REQUEST_RIDE_END_POINT = get_api_endpoints()
+USERS_END_POINT, REQUEST_RIDE_END_POINT, BOOK_RIDE_END_POINT = get_api_endpoints()
 
 def fetch_users(end_point):
     return requests.get(end_point).json()
@@ -26,21 +27,37 @@ def create_random_location(south_west, north_east):
     lng = random.uniform(south_west[1], north_east[1])
     return f"{lat},{lng}"
 
-async def request_ride(user):
+async def request_ride(data):
+    response = requests.post(REQUEST_RIDE_END_POINT, json=data).json()
+    print(response)
+    taxi_ids = [taxi.get("taxi_id") for taxi in response.get("nearest_taxis") if taxi.get("taxi_id") is not None]
+    if len(taxi_ids) == 0:
+        print("No taxi available")
+        return
+    return random.choice(taxi_ids)
+
+
+async def book_ride(user):
     data = {
         "user_id": user.get("user_id"),
         "taxi_class": random.choice([0, 1, 2]),
         "origin": create_random_location((12.8, 77.5), (13.5, 78.2)),
         "destination": create_random_location((12.8, 77.5), (13.5, 78.2)),
     }
-    response = requests.post(REQUEST_RIDE_END_POINT, json=data).json()
+    taxi_id = await request_ride(data)
+    if taxi_id is None:
+        return
+    data["taxi_id"] = taxi_id
+    response = requests.post(BOOK_RIDE_END_POINT,
+                             json=data).json()
     print(response)
+    return None
 
 async def main(users):
 
     tasks = []
     for user in users:
-        tasks.append(asyncio.create_task(request_ride(user)))
+        tasks.append(asyncio.create_task(book_ride(user)))
     await asyncio.gather(*tasks)
 
 if __name__ == '__main__':
