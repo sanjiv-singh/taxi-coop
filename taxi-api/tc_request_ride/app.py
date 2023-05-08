@@ -38,8 +38,9 @@ def lambda_handler(event, context):
     pprint.pprint(start_location)   
 
     # Getting the nearest taxis to a customer
+    # Find the nearest taxis that are available and are of requested class
     print('######################## THE 2 NEAREST TAXIS ########################')
-    nearest_query = {'location': {"$near":  start_location}}
+    nearest_query = {'location': {"$near":  start_location}, 'taxi_class': taxi_class, 'status': 1}
 
 
     for doc in taxi_collection.find(nearest_query).limit(2):
