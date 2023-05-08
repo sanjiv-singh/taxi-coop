@@ -8,6 +8,8 @@ db.createCollection("user");
 db.createCollection("user_history");
 
 db.taxi.createIndex({location: "2dsphere"});
+db.taxi.createIndex( { email: 1 }, { unique: true } )
+db.user.createIndex( { email: 1 }, { unique: true } )
 
 // db.taxi.find( { 
 //     location: { 
