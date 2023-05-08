@@ -31,9 +31,8 @@ def report_error(error_message):
 
 async def update_taxi_collection(taxi_data):
     #Update data
-    taxi_data['_id'] = ObjectId(taxi_data['taxi_id'])
-    del taxi_data['taxi_id']
-    result = taxi_collection.replace_one({"_id": taxi_data["_id"]}, taxi_data, upsert=True)
+    taxi_id = ObjectId(taxi_data['taxi_id'])
+    result = taxi_collection.update_one({'_id': taxi_id}, {'$set': {'location': taxi_data["location"], 'status': taxi_data["status"]}})
     print(f"Updated {result.matched_count} item in taxi collection: {result.upserted_id}")
 
 async def insert_taxi_history(taxi_data):
