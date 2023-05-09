@@ -3,6 +3,7 @@
 
 # Install Python3 and reuired python packages
 echo "Installing Python3 and required packages"
+sudo apt-get update
 sudo apt-get install -y python3
 sudo apt-get remove -y python-pip
 sudo apt-get install -y zip
