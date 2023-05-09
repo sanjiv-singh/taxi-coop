@@ -104,16 +104,14 @@ class Taxi(MQTTClient):
 
 
     async def _drive(self, origin, destination, speed):
-        # Convert difference in northings and eastings to meters
-        #x, y = (destination[1] - origin[1])*DIST_FACTOR, (destination[0] - origin[0])*DIST_FACTOR
-        # Calculate distance between origin and destination
         lat_dist = (destination[0] - origin[0])
         lng_dist = (destination[1] - origin[1])
         distance_in_degrees = (lat_dist**2 + lng_dist**2)**0.5
+        # Convert difference in northings and eastings to meters
         distance = distance_in_degrees * DIST_FACTOR
         # Calculate time taken to travel the distance
         time = distance/speed
-        print(f"\nDistance: {distance}m, Time: {time}s")
+        print(f"\nDistance: {distance/1000.0}Km, Time: {time/60.0}min")
         # Calculate the no of steps
         steps = int(time/DELAY) + 1
         print(f"No of steps: {steps}")
