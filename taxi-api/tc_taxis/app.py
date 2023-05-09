@@ -42,7 +42,7 @@ def handle_get(event):
             'headers': {
                 'Access-Control-Allow-Headers': 'Content-Type',
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+                'Access-Control-Allow-Methods': 'GET,OPTIONS'
             },
             "body": json.dumps(result)
         }
@@ -60,7 +60,7 @@ def handle_get(event):
         "headers": {
             "Access-Control-Allow-Headers": "Content-Type",
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+            "Access-Control-Allow-Methods": "GET,OPTIONS"
         },
         "body": json.dumps(rows)
     }
@@ -75,6 +75,11 @@ def handle_post(event):
 
     return {
         "statusCode": 200,
+        'headers': {
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST'
+        },
         "body": "User registration is successful."
     }
 
