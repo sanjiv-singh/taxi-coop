@@ -95,8 +95,9 @@ class Taxi(MQTTClient):
                 await asyncio.sleep(DELAY)
                 #await self._drive((self._lat, self._lng), create_random_location((12.8, 77.5), (13.5, 78.2)), 10)
             elif self._status == TaxiStatus.TRIP:
-                print(f"\nOn trip, going to destination {self._destination}")
+                print(f"\n{self._taxi_id} on trip, going to destination {self._destination}")
                 await self._drive((self._lat, self._lng), self._destination, 30)
+                print(f"\nArrived at destination {self._destination}, {self._taxi_id} available for booking.")
                 self._status = TaxiStatus.AVL
             else:
                 await asyncio.sleep(DELAY)
