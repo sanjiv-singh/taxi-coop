@@ -40,7 +40,12 @@ def lambda_handler(event, context):
     # Getting the nearest taxis to a customer
     # Find the nearest taxis that are available and are of requested class
     print('######################## THE 2 NEAREST TAXIS ########################')
-    nearest_query = {'location': {"$near":  start_location}, 'taxi_class': taxi_class, 'status': 1}
+    nearest_query = {'location': {"$near":  start_location}, 'status': 1}
+
+    # If the customer has requested a specific taxi class, then add that to the query
+    # Ignore the taxi class if the customer has not requested a specific class (taxi_class = 3)
+    if int(taxi_class) < 3:
+        nearest_query['taxi_class'] = taxi_class
 
 
     for doc in taxi_collection.find(nearest_query).limit(2):

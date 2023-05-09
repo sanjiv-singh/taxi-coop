@@ -40,7 +40,7 @@ async def request_ride(data):
 async def book_ride(user):
     data = {
         "user_id": user.get("_id"),
-        "taxi_class": random.choice([0, 1, 2]),
+        "taxi_class": random.choice([0, 1, 2, 3]),
         "origin": create_random_location((12.8, 77.5), (13.5, 78.2)),
         "destination": create_random_location((12.8, 77.5), (13.5, 78.2)),
     }
