@@ -47,6 +47,11 @@ Parameters:
     Default: Taxi_group
 
 Globals:
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,OPTIONS'"
+      AllowHeaders: "'content-type'"
+      AllowOrigin: "'*'"
   Function:
     Timeout: 3
     MemorySize: 128
