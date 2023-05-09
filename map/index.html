@@ -35,10 +35,26 @@
           return (brng + 360) % 360;
         }
 
-        const url = 'https://2o91lyf8y0.execute-api.us-east-1.amazonaws.com/Prod/taxi/';
-	let taxis = [];
+        const url = 'https://0n48xb1i50.execute-api.us-east-1.amazonaws.com/Prod/taxis/';
+	let markers = {};
+	
+	getTaxis = (url, L, layerGroup, taxiIcon) => {
+	 fetch(url, { 
+	   method: 'GET'
+	 })
+	 .then(function(response) { return response.json(); })
+	 .then(function(json) {
 
-        getTaxis = (url, map, L, layerGroup, taxiIcon) => {
+	   // use the json
+	   json.forEach(taxi => {
+	     const coords = taxi.location.coordinates;
+	     markers[taxi._id] = markers[taxi._id] || L.rotatedMarker([coords[1], coords[0]], {icon: taxiIcon});
+	     markers[taxi._id].addTo(layerGroup);
+	   });
+	 });
+	};
+
+        updateTaxis = (url, L, layerGroup, taxiIcon) => {
          fetch(url, { 
            method: 'GET'
          })
@@ -48,23 +64,15 @@
            // use the json
            json.forEach(taxi => {
              const coords = taxi.location.coordinates;
-	     let taxi_obj = taxis.find(t => t._id === taxi._id);
-	     if (taxi_obj === undefined) {
-	       taxi_obj = {...taxi, lat: coords[1], lng: coords[0], angle: 0};
-	       taxis.push(taxi_obj);
-	     } else {
-		taxi_obj.angle = bearing(taxi_obj.lat, taxi_obj.lng, coords[1], coords[0]);
+	     old_coords = markers[taxi._id].getLatLng();
+	     markers[taxi._id].setLatLng([coords[1], coords[0]]);
+	     let angle = bearing(old_coords.lat, old_coords.lng, coords[1], coords[0]);
+	     if (angle != 0) {
+	       markers[taxi._id].setRotationAngle(angle);
 	     }
-           });
-	   // Clear all markers and add new markers based on the updated taxi list.
-           layerGroup.clearLayers();
-	   taxis.forEach(taxi_obj => {
-	     const marker = L.rotatedMarker([taxi_obj.lat, taxi_obj.lng], {icon: taxiIcon});
-	     marker.setRotationAngle(taxi_obj.angle);
-	     marker.addTo(layerGroup);
-           });
-         });
-        };
+	   });
+	 });
+	};
 
          // Marker Icon definition
          var taxiIcon = L.icon({
@@ -88,10 +96,11 @@
          map.addLayer(layer);
 
          const layerGroup = L.layerGroup().addTo(map);
+	 getTaxis(url, L, layerGroup, taxiIcon);
 
-         let id = setInterval('getTaxis(url, map, L, layerGroup, taxiIcon);', 5000); //call getTaxis every 5 seconds.
+         let id = setInterval('updateTaxis(url, L, layerGroup, taxiIcon);', 5000); //call updateTaxis every 5 seconds.
          function stop() { // call this to stop your interval.
-         clearInterval(id);
+           clearInterval(id);
          }
 
          
