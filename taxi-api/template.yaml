@@ -181,7 +181,7 @@ Resources:
         TCTaxis:
           Type: Api
           Properties:
-            Path: /request-ride
+            Path: /taxis/request
             Method: post
   TCBookRideFunction:
     Type: AWS::Serverless::Function
@@ -202,7 +202,7 @@ Resources:
         TCTaxis:
           Type: Api
           Properties:
-            Path: /book-ride
+            Path: /taxis/book
             Method: post
   TCUserFunction:
     Type: AWS::Serverless::Function
@@ -273,7 +273,7 @@ Outputs:
 
   TCBookRideFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for register Taxis function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/book-ride/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/taxis/book/"
   TCBookRideFunction:
     Description: "Book Ride Lambda Function ARN"
     Value: !GetAtt TCBookRideFunction.Arn
@@ -283,7 +283,7 @@ Outputs:
 
   TCTaxisApi:
     Description: "API Gateway endpoint URL for Prod stage for Get Taxis function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/taxi/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/taxis/"
   TCTaxisFunction:
     Description: "Get Taxis Lambda Function ARN"
     Value: !GetAtt TCTaxisFunction.Arn
@@ -293,7 +293,7 @@ Outputs:
 
   TCRequestRideApi:
     Description: "API Gateway endpoint URL for Prod stage for Requesting Taxis for ride"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/request-ride/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/taxis/request/"
   TCRequestRideFunction:
     Description: "Get Request Ride Lambda Function ARN"
     Value: !GetAtt TCRequestRideFunction.Arn
