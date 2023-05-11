@@ -17,9 +17,9 @@ def lambda_handler(event, context):
 
     return {
         "statusCode": 200,
-        "body": {
+        "body": json.dumps({
             "message": "updated succesfully"
-        }
+        })
     }
 
 def publish_booked_taxi(taxi_data):
