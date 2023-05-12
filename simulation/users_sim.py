@@ -10,8 +10,8 @@ def get_api_endpoints():
     try:
         api_id = resp.get("items")[0]["id"]
         return f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/users/", \
-            f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/request-ride", \
-            f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/book-ride"
+            f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/taxis/request", \
+            f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/taxis/book"
     except:
         print("Error: API Gateway not found")
         print("cannot proceed further")
