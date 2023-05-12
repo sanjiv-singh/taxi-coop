@@ -86,7 +86,7 @@ def handle_post(event):
 
 def handle_delete(event):
     print(event)
-    if event.get('resource') == '/taxi/{id}':
+    if event.get('resource') == '/taxis/{id}':
         # Get single record by _id
         id = event['pathParameters']['id']
         print(id)
