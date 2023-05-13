@@ -44,10 +44,7 @@ prepare_instance () {
     sleep 5
     # Prepare the instance
     ssh -i capstone-dev.pem -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null ubuntu@$ip_address "echo Login successful"
-    scp -i capstone-dev.pem -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null prepare.sh ubuntu@$ip_address:.
-    scp -i capstone-dev.pem -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null mongo.sh ubuntu@$ip_address:.
-    scp -i capstone-dev.pem -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null db_setup.js ubuntu@$ip_address:.
-    scp -i capstone-dev.pem -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null rds-combined-ca-bundle.pem ubuntu@$ip_address:.
+    scp -i capstone-dev.pem -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null prepare.sh mongo.sh db_setup.js rds-combined-ca-bundle.pem ubuntu@$ip_address:.
     ssh -i capstone-dev.pem -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null ubuntu@$ip_address "./prepare.sh"
 }
 
@@ -61,8 +58,18 @@ sleep 30
 echo "Preparing ec2 instance"
 prepare_instance
 echo "Done"
-echo "Now login to the instance, set DB_USER and DB_PASSWORD environment variables"
-echo "and run ./prepare.sh followed by ./mongo.sh"
-echo "e.g. ssh -i capstone-dev.pem ubuntu@$ip_address"
-echo "./mongo.sh"
+
+echo "Do you want to enable ssh port forwarding from localhost:27017 to AWSDocDB Cluster? (y/n)"
+read answer
+if [ $answer == "y" ]; then
+    ssh -i capstone-dev.pem -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -f -L 27017:$primary_endpoint:27017 ubuntu@$ip_address -N
+    echo "Now you can connect to the AWSDocDB Cluster using localhost:27017"
+    echo "e.g. mongo --tls --tlsAllowInvalidHostnames --tlsCAFile rds-combined-ca-bundle.pem --host localhost:27017 --username <DB_USER> --password <DB_PASSWORD>"
+    echo "Load and execute the file db_setup.js to create the database, collections and the required indices"
+else
+    echo "Now login to the instance, set DB_USER and DB_PASSWORD environment variables"
+    echo "and run ./mongo.sh"
+    echo "e.g. ssh -i capstone-dev.pem ubuntu@$ip_address"
+    echo "./mongo.sh"
+fi
 
