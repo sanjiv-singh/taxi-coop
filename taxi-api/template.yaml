@@ -116,7 +116,7 @@ Resources:
               - lambda:InvokeAsync
             Resource: !Ref RegisterLambdaArn
       Events:
-        TCDirections:
+        TCRegisterTaxi:
           Type: Api
           Properties:
             Path: /taxis
@@ -160,7 +160,6 @@ Resources:
               Path: /taxis/{id}
               Method: patch
 
-
   TCRequestRideFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -183,6 +182,7 @@ Resources:
           Properties:
             Path: /taxis/request
             Method: post
+
   TCBookRideFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -204,6 +204,7 @@ Resources:
           Properties:
             Path: /taxis/book
             Method: post
+
   TCUserFunction:
     Type: AWS::Serverless::Function
     Properties:
