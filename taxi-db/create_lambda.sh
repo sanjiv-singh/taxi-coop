@@ -38,27 +38,47 @@ create_lambda () {
     end_point=$(aws docdb describe-db-clusters --query DBClusters[].Endpoint --output text)
 
 
-    zip -r taxidb_lambda_package.zip taxidb_lambda.py
-    aws lambda create-function \
-        --function-name taxidb_lambda \
-        --runtime python3.9 \
-        --environment "Variables={db_user=$DB_USER,db_pass=$DB_PASSWORD,db_endpoint=$end_point,south=12.8,west=77.5,north=13.5,east=78.2}" \
-        --zip-file fileb://taxidb_lambda_package.zip \
-        --handler taxidb_lambda.lambda_handler \
-        --role $role_arn \
-        --output text \
-        --vpc-config SubnetIds=$subnet_ids,SecurityGroupIds=$security_group_ids
+    if [ "$db_lambda" = true ]; then
+	echo "Creating taxidb_lambda"
+        zip -r taxidb_lambda_package.zip taxidb_lambda.py
+        aws lambda create-function \
+            --function-name taxidb_lambda \
+            --runtime python3.9 \
+            --environment "Variables={db_user=$DB_USER,db_pass=$DB_PASSWORD,db_endpoint=$end_point,south=12.8,west=77.5,north=13.5,east=78.2}" \
+            --zip-file fileb://taxidb_lambda_package.zip \
+            --handler taxidb_lambda.lambda_handler \
+            --role $role_arn \
+            --output text \
+            --vpc-config SubnetIds=$subnet_ids,SecurityGroupIds=$security_group_ids
+    fi
 
-    zip -r taxidb_register_package.zip taxidb_register.py
-    aws lambda create-function \
-        --function-name taxidb_register \
-        --runtime python3.9 \
-        --environment "Variables={db_user=$DB_USER,db_pass=$DB_PASSWORD,db_endpoint=$end_point}" \
-        --zip-file fileb://taxidb_register_package.zip \
-        --handler taxidb_register.lambda_handler \
-        --role $role_arn \
-        --output text \
-        --vpc-config SubnetIds=$subnet_ids,SecurityGroupIds=$security_group_ids
+    if [ "$query_lambda" = true ]; then
+	echo "Creating taxidb_query"
+        zip -r taxidb_query_package.zip taxidb_query.py
+        aws lambda create-function \
+            --function-name taxidb_query \
+            --runtime python3.9 \
+            --environment "Variables={db_user=$DB_USER,db_pass=$DB_PASSWORD,db_endpoint=$end_point,south=12.8,west=77.5,north=13.5,east=78.2}" \
+            --zip-file fileb://taxidb_query_package.zip \
+            --handler taxidb_query.lambda_handler \
+            --role $role_arn \
+            --output text \
+            --vpc-config SubnetIds=$subnet_ids,SecurityGroupIds=$security_group_ids
+    fi
+
+    if [ "$register_lambda" = true ]; then
+	echo "Creating taxidb_register"
+	zip -r taxidb_register_package.zip taxidb_register.py
+	aws lambda create-function \
+	    --function-name taxidb_register \
+	    --runtime python3.9 \
+	    --environment "Variables={db_user=$DB_USER,db_pass=$DB_PASSWORD,db_endpoint=$end_point}" \
+	    --zip-file fileb://taxidb_register_package.zip \
+	    --handler taxidb_register.lambda_handler \
+	    --role $role_arn \
+	    --output text \
+	    --vpc-config SubnetIds=$subnet_ids,SecurityGroupIds=$security_group_ids
+    fi
 
 }
 
@@ -75,7 +95,31 @@ if [ -z "$DB_PASSWORD" ]; then
 	exit 1
 fi
 
-create_lambda
+if [ -z "$1" ]
+  then
+    echo "Creating all db related lambda functions"
+    db_lambda=true
+    query_lambda=true
+    register_lambda=true
+else
+    echo "Creating $1 lambda function"
+    db_lambda=false
+    query_lambda=false
+    register_lambda=false
+    if [ "$1" == "db" ]; then
+	db_lambda=true
+    elif [ "$1" == "query" ]; then
+	query_lambda=true
+    elif [ "$1" == "register" ]; then
+	register_lambda=true
+    else
+	echo "Invalid lambda function name"
+	echo "Valid names are db, query, register"
+	exit 1
+    fi
+fi
+
+create_lambda db_lambda query_lambda register_lambda
 sleep 5
 
 aws lambda add-permission \
