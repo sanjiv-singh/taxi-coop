@@ -46,6 +46,7 @@ create_lambda () {
         --zip-file fileb://taxidb_lambda_package.zip \
         --handler taxidb_lambda.lambda_handler \
         --role $role_arn \
+        --output text \
         --vpc-config SubnetIds=$subnet_ids,SecurityGroupIds=$security_group_ids
 
     zip -r taxidb_register_package.zip taxidb_register.py
@@ -56,6 +57,7 @@ create_lambda () {
         --zip-file fileb://taxidb_register_package.zip \
         --handler taxidb_register.lambda_handler \
         --role $role_arn \
+        --output text \
         --vpc-config SubnetIds=$subnet_ids,SecurityGroupIds=$security_group_ids
 
 }
