@@ -33,6 +33,9 @@ Parameters:
   RegisterLambdaArn:
     Type: String
     Description: Arn of Lambda Function for Taxi Registration in DB
+  QueryLambdaArn:
+    Type: String
+    Description: Arn of Lambda Function for querying the DocDB
   IoTPolicy:
     Type: String
     Description: IoT Policy
@@ -170,6 +173,37 @@ Resources:
         - x86_64
       Environment:
         Variables:
+          query_lambda_arn: !Ref QueryLambdaArn
+          iot_policy: !Ref IoTPolicy
+          iot_thing_type: !Ref IoTThingType
+          iot_thing_group: !Ref IoTThingGroup
+      Policies:
+        - AWSIoTFullAccess
+        - Version: '2012-10-17'
+          Statement:
+          - Sid: LambdaInvokePolicy
+            Effect: Allow
+            Action:
+              - lambda:InvokeFunction
+              - lambda:InvokeAsync
+            Resource: !Ref QueryLambdaArn
+      Events:
+        TCRequestTaxis:
+          Type: Api
+          Properties:
+            Path: /taxis/request
+            Method: post
+
+  TCAcceptRideFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: tc_accept_ride/
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
           db_user: !Ref DBUser
           db_pass: !Ref DBPass
           db_endpoint: !Ref DBEndPoint
@@ -177,10 +211,10 @@ Resources:
           SecurityGroupIds: !Ref DBSecurityGroups
           SubnetIds: !Ref DBSubnets
       Events:
-        TCTaxis:
+        TCAcceptRide:
           Type: Api
           Properties:
-            Path: /taxis/request
+            Path: /rides/accept
             Method: post
 
   TCBookRideFunction:
@@ -204,6 +238,49 @@ Resources:
           Properties:
             Path: /taxis/book
             Method: post
+
+  TCRidesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: tc_rides/
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          db_user: !Ref DBUser
+          db_pass: !Ref DBPass
+          db_endpoint: !Ref DBEndPoint
+      VpcConfig:
+          SecurityGroupIds: !Ref DBSecurityGroups
+          SubnetIds: !Ref DBSubnets
+      Events:        
+        TCGetRide:
+          Type: Api
+          Properties:
+            Path: /rides/{id}
+            Method: get
+        TCGetRides:
+          Type: Api
+          Properties:
+            Path: /rides
+            Method: get
+        TCPostRide:
+          Type: Api
+          Properties:
+            Path: /rides
+            Method: post
+        TCDeleteRide:
+          Type: Api
+          Properties:
+            Path: /rides/{id}
+            Method: delete
+        TCPatchRide:
+          Type: Api
+          Properties:
+            Path: /rides/{id}
+            Method: patch
 
   TCUserFunction:
     Type: AWS::Serverless::Function
@@ -255,59 +332,36 @@ Outputs:
   TCGeocoderApi:
     Description: "API Gateway endpoint URL for Prod stage for Geocoder function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/geocoder/"
-  TCGeocoderFunction:
-    Description: "Geocoder Lambda Function ARN"
-    Value: !GetAtt TCGeocoderFunction.Arn
-  TCGeocoderFunctionIamRole:
-    Description: "Implicit IAM Role created for Geocoder function"
-    Value: !GetAtt TCGeocoderFunctionRole.Arn
-
+  
   TCDirectionsApi:
     Description: "API Gateway endpoint URL for Prod stage for Directions function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/directions/"
-  TCDirectionsFunction:
-    Description: "Directions Lambda Function ARN"
-    Value: !GetAtt TCDirectionsFunction.Arn
-  TCDirectionsFunctionIamRole:
-    Description: "Implicit IAM Role created for Directions function"
-    Value: !GetAtt TCDirectionsFunctionRole.Arn
-
+  
   TCBookRideFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for register Taxis function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/taxis/book/"
-  TCBookRideFunction:
-    Description: "Book Ride Lambda Function ARN"
-    Value: !GetAtt TCBookRideFunction.Arn
-  TCBookRideFunctionIamRole:
-    Description: "Implicit IAM Role created for book ride Taxis function"
-    Value: !GetAtt TCBookRideFunctionRole.Arn
-
+  
   TCTaxisApi:
     Description: "API Gateway endpoint URL for Prod stage for Get Taxis function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/taxis/"
-  TCTaxisFunction:
-    Description: "Get Taxis Lambda Function ARN"
-    Value: !GetAtt TCTaxisFunction.Arn
-  TCTaxisFunctionIamRole:
-    Description: "Implicit IAM Role created for Get Taxis function"
-    Value: !GetAtt TCTaxisFunctionRole.Arn
-
+  
   TCRequestRideApi:
     Description: "API Gateway endpoint URL for Prod stage for Requesting Taxis for ride"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/taxis/request/"
-  TCRequestRideFunction:
-    Description: "Get Request Ride Lambda Function ARN"
-    Value: !GetAtt TCRequestRideFunction.Arn
-  TCRequestRideFunctionIamRole:
-    Description: "Implicit IAM Role created for Request Ride function"
-    Value: !GetAtt TCRequestRideFunctionRole.Arn
+  
+  TCAcceptRideApi:
+    Description: "API Gateway endpoint URL for Prod stage for Notifying a Taxi for ride"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/rides/accept/"
+  
+  TCNotifyTaxiApi:
+    Description: "API Gateway endpoint URL for Prod stage for Notifying a Taxi for ride"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/taxis/notify/"
+  
+  TCRidesApi:
+    Description: "API Gateway endpoint URL for Prod stage for Creating, Retrieving and Deleting Ride records"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/rides/"
+
   TCUserFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for Creating, Retrieving and Deleting User"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/users/"
-  TCUserFunction:
-    Description: "User Lambda Function ARN"
-    Value: !GetAtt TCUserFunction.Arn
-  TCUserFunctionIamRole:
-    Description: "Implicit IAM Role created for User function"
-    Value: !GetAtt TCUserFunctionRole.Arn
-
+  

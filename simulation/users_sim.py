@@ -1,23 +1,26 @@
 import random
 import requests
+import json
 import boto3
 import asyncio
 
 AWS_API_GATEWAY = boto3.client('apigateway')
+TAXI_LIMIT = 3
 
 def get_api_endpoints():
     resp = AWS_API_GATEWAY.get_rest_apis()
     try:
         api_id = resp.get("items")[0]["id"]
         return f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/users/", \
-            f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/taxis/request", \
-            f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/taxis/book"
+            f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/taxis/request/", \
+            f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/rides/", \
+            f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/taxis/book/"
     except:
         print("Error: API Gateway not found")
         print("cannot proceed further")
         import sys; sys.exit(1)
 
-USERS_END_POINT, REQUEST_RIDE_END_POINT, BOOK_RIDE_END_POINT = get_api_endpoints()
+USERS_END_POINT, REQUEST_RIDE_END_POINT, RIDES_END_POINT, BOOK_RIDE_END_POINT = get_api_endpoints()
 
 def fetch_users(end_point):
     return requests.get(end_point).json()
@@ -27,10 +30,33 @@ def create_random_location(south_west, north_east):
     lng = random.uniform(south_west[1], north_east[1])
     return f"{lat},{lng}"
 
+def select_taxi(taxis):
+    for taxi in taxis:
+        taxi["timestamp"] = datetime.strptime(taxi["timestamp"], "%Y-%m-%dT%H:%M:%S.%fZ")
+    return min(taxis, key=lambda x: x["timestamp"])
+
 async def request_ride(data):
-    response = requests.post(REQUEST_RIDE_END_POINT, json=data).json()
-    print(response)
-    taxi_ids = [taxi.get("taxi_id") for taxi in response.get("nearest_taxis") if taxi.get("taxi_id") is not None]
+    ride_data = requests.post(REQUEST_RIDE_END_POINT, json=data).json()
+    ride_id = ride_data.get("ride_id")
+    if not ride_id:
+        print("Error: Ride request failed")
+        return
+    print(f'Ride request created with ride_id: {ride_id}')
+    print("Waiting for taxi to accept the ride request")
+    while True:
+        await asyncio.sleep(2)
+        rides = requests.get(f"{RIDES_END_POINT}{ride_id}").json()
+        try:
+            accepted_taxis = rides[0].get("accepted_taxis")
+            if len(accepted_taxis) > 0:
+                break
+        except:
+            pass
+    print(accepted_taxis)
+    selected_taxi = select_taxi(accepted_taxis)
+    return selected_taxi.get("taxi_id")
+    import sys; sys.exit()
+    taxi_ids = [taxi.get("_id") for taxi in response.get("nearest_taxis") if taxi.get("_id") is not None]
     if len(taxi_ids) == 0:
         print("No taxi available")
         return
@@ -43,6 +69,7 @@ async def book_ride(user):
         "taxi_class": random.choice([0, 1, 2, 3]),
         "origin": create_random_location((12.8, 77.5), (13.5, 78.2)),
         "destination": create_random_location((12.8, 77.5), (13.5, 78.2)),
+        "taxi_limit": TAXI_LIMIT
     }
     taxi_id = await request_ride(data)
     if taxi_id is None:

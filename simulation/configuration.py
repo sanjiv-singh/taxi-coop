@@ -1,13 +1,25 @@
 import logging
 import json
+import boto3
 
 AllowedActions = ['both', 'publish', 'subscribe']
+
+AWS_API_GATEWAY = boto3.client('apigateway')
 
 
 class ConfigurationManager:
 
-    def __init__(self, config_file_name: str) -> None:
+    def __init__(self, config_file_name, api_id=""):
         self.configure(config_file_name)
+        self.api_id = api_id
+        if not api_id:
+            resp = AWS_API_GATEWAY.get_rest_apis()
+            try:
+                self.api_id = resp.get("items")[0]["id"]
+            except:
+                print("Error: API Gateway not found")
+                print("cannot proceed with registration")
+                import sys; sys.exit(1);
 
     def _load_config(self, file):
         with open(file) as f:

@@ -6,7 +6,9 @@ from enum import Enum
 import random
 import json
 import asyncio
+import requests
 import datetime
+import time
 from bson.objectid import ObjectId
 
 DIST_FACTOR = 111139  # meters per degree of lat/long
@@ -54,6 +56,15 @@ class Taxi(MQTTClient):
                 "coordinates": [self._lng, self._lat]
         }
     
+    def _accept_ride(self, data):
+        ride_id = data.get('ride_id')
+        url = f'https://{self._config.api_id}.execute-api.us-east-1.amazonaws.com/Prod/rides/accept/'
+        print(f'{self._taxi_id} accepting ride at {url}')
+        response = requests.post(url, json={"taxi_id": self._taxi_id})
+        if response.status_code == 200:
+            print(response.json())
+        return
+    
     def connect(self):
         self._connect()
     
@@ -74,8 +85,14 @@ class Taxi(MQTTClient):
 
     def _on_message(self, client, userdata, msg):
         data = clean_data(json.loads(msg.payload))
+        if msg.topic == f'{self._topic}/{self._taxi_id}/request':
+            if self._status == TaxiStatus.AVL:
+                time.sleep(random.uniform(0, 0.2))
+                self._accept_ride(data)
+            print(f"\nTaxi {self._taxi_id} accepted ride request by user {data['user_id']}")
         if msg.topic == f'{self._topic}/{self._taxi_id}/book':
-            self._status = TaxiStatus.BOOKED
+            if self._status == TaxiStatus.AVL:
+                self._status = TaxiStatus.BOOKED
             print(f"\nTaxi {self._taxi_id} booked for user {data['user_id']}")
         print(f"M\nessage received: {data}")
         for key, value in data.items():

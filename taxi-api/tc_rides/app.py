@@ -16,27 +16,19 @@ client = pymongo.MongoClient(endpoint, username=username, password=password,
     tls='true', tlsCAFile='rds-combined-ca-bundle.pem', retryWrites='false')
 db = client.taxidb
 print("Connected to Amazon DocumentDB")
-taxi_collection = db['taxi']
+ride_collection = db['ride']
 
 def handle_get(event):
     print(event)
     query = event.get("queryStringParameters")
-    if query:
-        history = query.get("history")
-        if history:
-            taxi_collection = db['taxi_history']
-            del query['history']
-        else:
-            taxi_collection = db['taxi']
-    else:
-        taxi_collection = db['taxi']
+    if not query:
         query = {}
 
-    if event.get('resource') == '/taxi/{id}':
+    if event.get('resource') == '/ride/{id}':
         # Get single record by _id
         id = event['pathParameters']['id']
         print(id)
-        result = taxi_collection.find_one({'_id': ObjectId(id)})
+        result = ride_collection.find_one({'_id': ObjectId(id)})
         print(result)
         result['_id'] = str(result['_id'])
         print(result)
@@ -50,8 +42,8 @@ def handle_get(event):
             "body": json.dumps(result)
         }
 
-    # Get all all records
-    cursor = taxi_collection.find(query)
+    # Get all records
+    cursor = ride_collection.find(query)
     rows = []
     for row in cursor:
         row['_id'] = str(row['_id'])
@@ -70,11 +62,11 @@ def handle_get(event):
 
 def handle_post(event):
     print(event)
-    print('taxi lamda handler is called.')
+    print('ride lambda handler is called.')
     body = json.loads(event["body"])
 
     # Insert data
-    result = taxi_collection.insert_one(body)
+    result = ride_collection.insert_one(body)
 
     return {
         "statusCode": 200,
@@ -83,23 +75,25 @@ def handle_post(event):
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'OPTIONS,POST'
         },
-        "body": "User registration is successful."
+        "body": json.dumps({
+            "ride_id": str(result.inserted_id),
+            "message": "Ride created.",
+        }),
     }
 
 
 def handle_delete(event):
     print(event)
-    if event.get('resource') == '/taxis/{id}':
+    if event.get('resource') == '/ride/{id}':
         # Get single record by _id
         id = event['pathParameters']['id']
         print(id)
-        result = taxi_collection.delete_one({'_id': ObjectId(id)})
-        print(result)
-        result['_id'] = str(result['_id'])
-        print(result)
+        result = ride_collection.delete_one({'_id': ObjectId(id)})
         return {
             "statusCode": 200,
-            "body": json.dumps(result)
+            "body": json.dumps({
+                "message": f"Ride id {id} deleted.",
+            }),
         }
 
 
@@ -121,4 +115,5 @@ def lambda_handler(event, context):
         return handle_delete(event)
     else:
         return handle_default(event)
+
 
