@@ -68,6 +68,7 @@ async def book_ride(user):
         "taxi_class": random.choice([0, 1, 2, 3]),
         "origin": create_random_location((12.8, 77.5), (13.5, 78.2)),
         "destination": create_random_location((12.8, 77.5), (13.5, 78.2)),
+        "taxi_limit": 3,
     }
     taxi_id = await request_ride(data)
     if taxi_id is None:
