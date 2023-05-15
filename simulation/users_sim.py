@@ -39,22 +39,20 @@ def create_random_location(south_west, north_east):
 
 async def request_ride(data):
     response = requests.post(REQUEST_RIDE_END_POINT, json=data).json()
-    print(response)
     ride_id = response.get("ride_id")
+    print(f'Requested ride with id {ride_id}')
     accepted_taxis = []
     while True:
         await asyncio.sleep(2)
         url = f'{RIDES_END_POINT}/{ride_id}/'
-        print("url ", url)
         try:
             ride = requests.get(url).json()
-            print(ride)
             accepted_taxis = ride[0].get("accepted_taxis")
             if accepted_taxis:
                 break
         except:
             print("No taxis yet. Waiting..")
-    print(accepted_taxis)
+    print(f'{len(accepted_taxis)} accepted the request')
     # Select taxi that responded first
     taxi_timings = [{"taxi_id": taxi["taxi_id"], "timing": parse_isodatetime(
         taxi["timestamp"]["$date"])} for taxi in accepted_taxis]
@@ -74,9 +72,11 @@ async def book_ride(user):
     if taxi_id is None:
         return
     data["taxi_id"] = taxi_id
+    print(f'Taxi {taxi_id} responded first')
     response = requests.post(BOOK_RIDE_END_POINT,
                              json=data).json()
-    print(response)
+    if response.get("message") == 'updated succesfully':
+        print(f'Taxi {taxi_id} booked')
     return None
 
 async def main(users):
