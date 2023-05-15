@@ -2,6 +2,7 @@ import json
 import os
 import pymongo
 from bson.objectid import ObjectId
+from bson import json_util
 
 #Get Amazon DocumentDB ceredentials from environment variables
 username = os.environ.get("db_user")
@@ -39,7 +40,7 @@ def handle_get(event):
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET,OPTIONS'
             },
-            "body": json.dumps(result)
+            "body": json_util.dumps(result)
         }
 
     # Get all records
@@ -57,7 +58,7 @@ def handle_get(event):
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET,OPTIONS"
         },
-        "body": json.dumps(rows)
+        "body": json_util.dumps(rows)
     }
 
 def handle_post(event):
