@@ -123,7 +123,7 @@ The API end point for TCGetTaxis should be in the output. Copy the URL and open 
     $ ./mongo.sh
 ```
 
-8.    Now we shall start the simulator. It consists of two steps, viz. registration of taxis as IoT things and publishing of MQTT messages to IoT Core with updated location information. Change directory to `simulation` and start the taxi simulator
+8.    Now we shall start the simulator. It can be run on local machine or an ec2 instance in the cloud. It consists of two steps, viz. registration of taxis as IoT things and publishing of MQTT messages to IoT Core with updated location information. Change directory to `simulation` and start the taxi simulator
 
 ```bash
     $ cd ../simulation
@@ -131,9 +131,17 @@ The API end point for TCGetTaxis should be in the output. Copy the URL and open 
     $ python main.py
 ```
 
+9.    The user simulator also consists of two steps, viz. registration of users and simulation of ride reuest and booking. Change directory to `simulation` and start the user simulator. It can be run on the same machine as taxi similator or in any other machine as these simulators are completely independent of each other and interact only though APIs or IoT Code.
+
+```bash
+    $ cd ../simulation
+    $ python users_reg.py
+    $ python users_sim.py
+```
+
 Now refresh the bowser page opened above and if everything went well, you should see taxi data in JSON format in your browser.
 
-9.    A simple leaflet map frontend has been created for visualisation. Go to the map folder and edit the `index.html` file to update the url in line 13 to point to the API url copied above. Put this on a web server or run a local web server to access this file in a browser. You may use the python http module to do so.
+10.    A simple leaflet map frontend has been created for visualisation. Go to the map folder and edit the `index.html` file to update the const url to point to the API url copied above. Put this on a web server or run a local web server to access this file in a browser. You may use the python http module to do so.
 
 ```bash
     $ cd ../map
@@ -141,7 +149,7 @@ Now refresh the bowser page opened above and if everything went well, you should
     $ python -m http.server
 ```
 
-10.    Now point your browser to `http://localhost:8000/index.html`. The taxis should be visible as per their location.
+11.    Now point your browser to `http://localhost:8000/index.html`. The taxis should be visible as per their location and if the user sim is running, they should be moving as per booking of rides.
 
 ## Cleanup
 
@@ -152,6 +160,7 @@ thing group, IAM roles, custom policies, all things and all certificates
 on AWS IoT Core. Finally, it deletes local copies of certificates and
  private keys in the `../simulation/.certs` folder.
 ```bash
+    $ cd ../taxi-iot
     $ ./cleanup.sh
 ```
 
