@@ -3,18 +3,33 @@ import requests
 import json
 import boto3
 import asyncio
+from datetime import datetime
 
 AWS_API_GATEWAY = boto3.client('apigateway')
 TAXI_LIMIT = 3
+
+def parse_isodatetime(datetime_str):
+    try:
+        return datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S.%f%z")
+    except ValueError:
+        # Perhaps the datetime has a whole number of seconds with no decimal
+        # point. In that case, this will work:
+        return datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S%z")
 
 def get_api_endpoints():
     resp = AWS_API_GATEWAY.get_rest_apis()
     try:
         api_id = resp.get("items")[0]["id"]
         return f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/users/", \
+<<<<<<< HEAD
             f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/taxis/request/", \
             f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/rides/", \
             f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/taxis/book/"
+=======
+            f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/taxis/request", \
+            f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/rides", \
+            f"https://{api_id}.execute-api.us-east-1.amazonaws.com/Prod/taxis/book"
+>>>>>>> 6ada15d (updated user and taxi sim for ride selection functionality)
     except:
         print("Error: API Gateway not found")
         print("cannot proceed further")
@@ -36,6 +51,7 @@ def select_taxi(taxis):
     return min(taxis, key=lambda x: x["timestamp"])
 
 async def request_ride(data):
+<<<<<<< HEAD
     ride_data = requests.post(REQUEST_RIDE_END_POINT, json=data).json()
     ride_id = ride_data.get("ride_id")
     if not ride_id:
@@ -61,6 +77,30 @@ async def request_ride(data):
         print("No taxi available")
         return
     return random.choice(taxi_ids)
+=======
+    response = requests.post(REQUEST_RIDE_END_POINT, json=data).json()
+    print(response)
+    ride_id = response.get("ride_id")
+    accepted_taxis = []
+    while True:
+        await asyncio.sleep(2)
+        url = f'{RIDES_END_POINT}/{ride_id}/'
+        print("url ", url)
+        try:
+            ride = requests.get(url).json()
+            print(ride)
+            accepted_taxis = ride[0].get("accepted_taxis")
+            if accepted_taxis:
+                break
+        except:
+            print("No taxis yet. Waiting..")
+    print(accepted_taxis)
+    # Select taxi that responded first
+    taxi_timings = [{"taxi_id": taxi["taxi_id"], "timing": parse_isodatetime(
+        taxi["timestamp"]["$date"])} for taxi in accepted_taxis]
+    sorted_taxis = sorted(taxi_timings, key=lambda x: x["timing"])
+    return sorted_taxis[0]["taxi_id"]
+>>>>>>> 6ada15d (updated user and taxi sim for ride selection functionality)
 
 
 async def book_ride(user):
