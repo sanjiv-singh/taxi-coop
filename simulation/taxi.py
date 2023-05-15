@@ -7,7 +7,6 @@ import random
 import json
 import requests
 import asyncio
-import requests
 import datetime
 import time
 from bson.objectid import ObjectId
@@ -57,15 +56,6 @@ class Taxi(MQTTClient):
                 "coordinates": [self._lng, self._lat]
         }
     
-    def _accept_ride(self, data):
-        ride_id = data.get('ride_id')
-        url = f'https://{self._config.api_id}.execute-api.us-east-1.amazonaws.com/Prod/rides/accept/'
-        print(f'{self._taxi_id} accepting ride at {url}')
-        response = requests.post(url, json={"taxi_id": self._taxi_id})
-        if response.status_code == 200:
-            print(response.json())
-        return
-    
     def connect(self):
         self._connect()
     
@@ -86,23 +76,12 @@ class Taxi(MQTTClient):
 
     def _on_message(self, client, userdata, msg):
         data = clean_data(json.loads(msg.payload))
-<<<<<<< HEAD
-        if msg.topic == f'{self._topic}/{self._taxi_id}/request':
-            if self._status == TaxiStatus.AVL:
-                time.sleep(random.uniform(0, 0.2))
-                self._accept_ride(data)
-            print(f"\nTaxi {self._taxi_id} accepted ride request by user {data['user_id']}")
-        if msg.topic == f'{self._topic}/{self._taxi_id}/book':
-            if self._status == TaxiStatus.AVL:
-                self._status = TaxiStatus.BOOKED
-=======
         if msg.topic == f'{self._topic}/{self._taxi_id}/request' and self._status == TaxiStatus.AVL:
             print(f"\nTaxi {self._taxi_id} received request for ride {data['ride_id']} with user {data['user_id']}")
             time.sleep(random.uniform(0.1, 0.4))
             self._accept_ride(data)
         if msg.topic == f'{self._topic}/{self._taxi_id}/book' and self._status == TaxiStatus.AVL:
             self._status = TaxiStatus.BOOKED
->>>>>>> 6ada15d (updated user and taxi sim for ride selection functionality)
             print(f"\nTaxi {self._taxi_id} booked for user {data['user_id']}")
         print(f"\nMessage received: {data}")
         for key, value in data.items():
