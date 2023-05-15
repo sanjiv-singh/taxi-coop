@@ -1,10 +1,12 @@
 
 use taxidb;
 
+db.ride.drop();
 db.user.drop();
 db.taxi.drop();
 db.taxi_history.drop();
 
+db.createCollection("ride");
 db.createCollection("user");
 db.createCollection("taxi");
 db.createCollection("taxi_history");
