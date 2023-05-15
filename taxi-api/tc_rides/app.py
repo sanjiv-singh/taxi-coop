@@ -25,7 +25,7 @@ def handle_get(event):
     if not query:
         query = {}
 
-    if event.get('resource') == '/ride/{id}':
+    if event.get('resource') == '/rides/{id}':
         # Get single record by _id
         id = event['pathParameters']['id']
         print(id)
