@@ -89,8 +89,7 @@ class Taxi(MQTTClient):
 
 
     def _accept_ride(self, data):
-        #accept_url = f'https://{self._api_id).execute-api.us-east-1.amazonaws.com/Prod/rides/accept/'
-        accept_url = f'https://412wwtxvgg.execute-api.us-east-1.amazonaws.com/Prod/rides/accept/'
+        accept_url = f'https://{self._config.api_id}.execute-api.us-east-1.amazonaws.com/Prod/rides/accept/'
         response = requests.post(
                 accept_url,
                 json={
@@ -98,7 +97,27 @@ class Taxi(MQTTClient):
                     "ride_id": data.get("ride_id")
                 }
         ).json()
-        print(response)
+    
+    async def _commence_ride(self):
+        rides_url = f'https://{self._config.api_id}.execute-api.us-east-1.amazonaws.com/Prod/rides/'
+        response = requests.patch(
+                rides_url + self._ride_id,
+                data={
+                    "start_time": datetime.datetime.now().isoformat(),
+                    "status": 'IN_PROGRESS'
+                }
+        ).json()
+
+    async def _complete_ride(self):
+        rides_url = f'https://{self._config.api_id}.execute-api.us-east-1.amazonaws.com/Prod/rides/'
+        response = requests.patch(
+                rides_url + self._ride_id,
+                data={
+                    "end_time": datetime.datetime.now().isoformat(),
+                    "status": 'COMPLETED'
+                }
+        ).json()
+        delattr(self, '_ride_id')
 
     async def taxi_loop(self):
         """Act based on the status of the taxi"""
@@ -108,6 +127,7 @@ class Taxi(MQTTClient):
             if self._status == TaxiStatus.BOOKED:
                 print(f"\nTaxi booked, going to origin {self._origin}")
                 await self._drive((self._lat, self._lng), self._origin, 30)
+                await self._commence_ride()
                 self._status = TaxiStatus.TRIP
             elif self._status == TaxiStatus.AVL:
                 await asyncio.sleep(DELAY)
@@ -116,6 +136,7 @@ class Taxi(MQTTClient):
                 print(f"\n{self._taxi_id} on trip, going to destination {self._destination}")
                 await self._drive((self._lat, self._lng), self._destination, 30)
                 print(f"\nArrived at destination {self._destination}, {self._taxi_id} available for booking.")
+                await self._complete_ride()
                 self._status = TaxiStatus.AVL
             else:
                 await asyncio.sleep(DELAY)
