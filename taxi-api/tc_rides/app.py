@@ -83,6 +83,30 @@ def handle_post(event):
     }
 
 
+def handle_patch(event):
+    print(event)
+    id = event['pathParameters']['id']
+    print(id)
+    patch = {}
+    for param in event["body"].split('&'):
+        k, v = param.split('=')
+        patch[k] = v
+    result = ride_collection.update_one({'_id': ObjectId(id)}, {"$set": patch})
+
+    return {
+        "statusCode": 200,
+        'headers': {
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST'
+        },
+        "body": json.dumps({
+            "ride_id": str(result.upserted_id),
+            "message": "Ride updated with taxi.",
+        }),
+    }
+
+
 def handle_delete(event):
     print(event)
     if event.get('resource') == '/ride/{id}':
@@ -114,7 +138,8 @@ def lambda_handler(event, context):
         return handle_post(event)
     elif method == 'DELETE':
         return handle_delete(event)
+    elif method == 'PATCH':
+        return handle_patch(event)
     else:
         return handle_default(event)
-
 

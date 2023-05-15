@@ -81,11 +81,14 @@ class User:
         if self.taxi_id is None:
             return
         self.data["taxi_id"] = self.taxi_id
+        self.data["ride_id"] = self.ride_id
         print(f'Taxi {self.taxi_id} responded first')
         response = requests.post(BOOK_RIDE_END_POINT,
                                 json=self.data).json()
         if response.get("message") == 'updated succesfully':
             print(f'Taxi {self.taxi_id} booked')
+        response = requests.patch(f'{RIDES_END_POINT}/{self.ride_id}/',
+                        data={"booked_taxi": self.taxi_id, "status": "BOOKED"}).json()
         return None
 
 async def main(users):
